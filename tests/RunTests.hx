@@ -8,6 +8,7 @@ class RunTests {
     static function main()
     {
         Runner.run(TestBatch.make([
+            new MidiFileTest(),
             new MidiMessageTest(),
         ])).handle(Runner.exit);
     }

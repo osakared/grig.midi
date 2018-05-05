@@ -3,5 +3,6 @@
 -main RunTests
 -dce full
 -lib tink_unittest
+-resource tests/bohemian_rhapsody.mid
 -hl bin/tests.hl
 -cmd hl bin/tests.hl
