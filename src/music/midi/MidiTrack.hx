@@ -15,7 +15,7 @@ class MidiTrack
         midiEvents = new Array<MidiEvent>();
     }
 
-    public static function fromInput(input:Input, parent:MidiFile):MidiTrack
+    public static function fromInput(input:Input, parent:MidiFile)
     {
         if (input.readInt32() != MIDI_TRACK_HEADER_TAG) {
             throw "Not a valid midi track";
@@ -62,14 +62,14 @@ class MidiTrack
 
             // Okay I think it's a message
             else {
-                var messageBytes:Int = flag;
+                var messageBytes:Int = flag << 0x10;
                 if (flag & 0x80 != 0) {
                     messageBytes |= input.readByte() << 8;
                     size -= 1;
                     lastFlag = flag;
                 }
                 else {
-                    messageBytes = lastFlag;
+                    messageBytes = lastFlag << 0x10;
                     messageBytes |= flag << 8;
                 }
                 messageBytes |= input.readByte();
@@ -79,6 +79,9 @@ class MidiTrack
             }
         }
 
-        return midiTrack;
+        // Avoid turning just header crap into a track
+        if (midiTrack.midiEvents.length > 0) {
+            parent.tracks.push(midiTrack);
+        }
     }
 }

@@ -35,7 +35,7 @@ class MidiFile
         midiFile.timeDivision = input.readUInt16();
 
         for (i in 0...numTracks) {
-            midiFile.tracks.push(MidiTrack.fromInput(input, midiFile));
+            MidiTrack.fromInput(input, midiFile);
         }
 
         return midiFile;

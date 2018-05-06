@@ -17,4 +17,19 @@ class MidiFileTest {
         midiFile = MidiFile.fromInput(input);
     }
 
+    public function testNumTracks()
+    {
+        return assert(midiFile.tracks.length == 13);
+    }
+
+    public function testFirstBassNote()
+    {
+        for (midiEvent in midiFile.tracks[1].midiEvents) {
+            if (midiEvent.midiMessage.messageType == NoteOn) {
+                return assert(midiEvent.midiMessage.byte2 == 0x3E);
+            }
+        }
+        return assert(false);
+    }
+
 }
