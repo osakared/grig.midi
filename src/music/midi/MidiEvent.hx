@@ -1,5 +1,7 @@
 package music.midi;
 
+import haxe.io.Input;
+
 class MidiEvent
 {
     public var midiMessage(default, null):MidiMessage;
