@@ -2,7 +2,7 @@ package;
 
 import haxe.io.BytesInput;
 import haxe.Resource;
-import music.midi.MidiFile;
+import grig.midi.MidiFile;
 import tink.unit.Assert.*;
 
 @:asserts

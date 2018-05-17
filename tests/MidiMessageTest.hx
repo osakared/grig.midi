@@ -1,6 +1,6 @@
 package;
 
-import music.midi.MidiMessage;
+import grig.midi.MidiMessage;
 import tink.unit.Assert.*;
 
 @:asserts

@@ -1,4 +1,4 @@
-package music.midi;
+package grig.midi;
 
 enum MessageType {
     NoteOn;

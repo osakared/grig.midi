@@ -1,8 +1,8 @@
-package music.midi;
+package grig.midi;
 
 import haxe.io.Input;
 
-using music.midi.VariableLengthReader;
+using grig.midi.VariableLengthReader;
 
 class MidiTrack
 {

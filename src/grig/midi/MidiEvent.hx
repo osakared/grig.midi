@@ -1,6 +1,4 @@
-package music.midi;
-
-import haxe.io.Input;
+package grig.midi;
 
 class MidiEvent
 {

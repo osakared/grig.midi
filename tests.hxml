@@ -4,5 +4,9 @@
 -dce full
 -lib tink_unittest
 -resource tests/bohemian_rhapsody.mid
--hl bin/tests.hl
--cmd hl bin/tests.hl
+# -hl bin/tests.hl
+# -cmd hl bin/tests.hl
+-lib hxnodejs
+-js bin/tests.js
+-xml bin/tests.xml
+-cmd node bin/tests.js
