@@ -1,0 +1,23 @@
+sudo: required
+dist: trusty
+
+language: node_js
+node_js: 6
+
+os:
+  - linux
+  - osx
+
+install:
+  - npm install -g lix
+
+script:
+  - lix download
+  - haxelib run travix python
+  - haxelib run travix node
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix js    ; fi
+  - haxelib run travix java
+  - haxelib run travix cpp
+  - haxelib run travix cs
+  - haxelib run travix php
+  - haxelib run travix lua
