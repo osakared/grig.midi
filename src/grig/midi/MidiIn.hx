@@ -1,4 +1,4 @@
-package grig.midi.rtmidi;
+package grig.midi;
 
 extern class MidiIn
 {
