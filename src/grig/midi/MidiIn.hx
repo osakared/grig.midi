@@ -8,6 +8,6 @@ extern class MidiIn
     public function openVirtualPort(portName:String):Void;
     public function closePort():Void;
     public function isPortOpen():Bool;
-    public function setCallback((MidiMessage, Float)->Void):Void;
+    public function setCallback(callback:(MidiMessage, Float)->Void):Void;
     public function cancelCallback():Void;
 }
