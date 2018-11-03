@@ -26,6 +26,18 @@ class MidiMessage
         bytes = _bytes;
     }
 
+    public static function fromArray(_bytes:Array<Int>):MidiMessage
+    {
+        var bytes:Int = 0;
+        var i = 1;
+        for (byte in _bytes) {
+            bytes += byte << (_bytes.length - i) * 8;
+            i++;
+        }
+
+        return new MidiMessage(bytes);
+    }
+
     private function get_channel():Int
     {
         return (bytes & 0xf0000) >> 0x10;
