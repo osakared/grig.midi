@@ -1,3 +1,0 @@
-# @install: lix --silent download "https://gitlab.com/haxe-grig/grig-python/repository/archive.tar.gz?ref=0079c89ed0cafb4568e5b8edcea5c7202d3b1c95&" into grig-python/0.0.0/gitlab/0079c89ed0cafb4568e5b8edcea5c7202d3b1c95
--D grig-python=0.0.0
--cp ${HAXE_LIBCACHE}/grig-python/0.0.0/gitlab/0079c89ed0cafb4568e5b8edcea5c7202d3b1c95/src

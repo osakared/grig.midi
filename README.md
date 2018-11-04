@@ -11,4 +11,4 @@ Stuff for working with midi data and midi files.
 To do:
 
 * Writing midi files (we have reading already)
-* Support for hardware ports for targets that support it
+* Support for hardware ports for targets that support it (we have this on python target already)

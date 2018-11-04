@@ -1,5 +1,9 @@
 package grig.midi;
 
+#if python
+typedef MidiIn = MidiIn.py;
+
+#else
 extern class MidiIn
 {
     public function new();
@@ -11,3 +15,4 @@ extern class MidiIn
     public function setCallback(callback:(MidiMessage, Float)->Void):Void;
     public function cancelCallback():Void;
 }
+#end
