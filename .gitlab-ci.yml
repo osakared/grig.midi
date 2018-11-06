@@ -20,4 +20,4 @@ test:
 trigger_build:
   stage: deploy
   script:
-    - "curl -X POST -F "token=$CI_JOB_TOKEN" -F ref=master https://gitlab.com/api/v4/projects/6741415/trigger/pipeline"
+    - "curl -X POST -F \"token=$CI_JOB_TOKEN\" -F ref=master https://gitlab.com/api/v4/projects/6741415/trigger/pipeline"
