@@ -20,7 +20,7 @@ class MidiPortTest {
     {
     }
 
-    // @:exclude
+    @:exclude
     public function testMidiIn()
     {
         var midiIn = new MidiIn();
