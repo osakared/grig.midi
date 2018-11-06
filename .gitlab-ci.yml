@@ -1,6 +1,4 @@
 image: osakared/haxe-ci
-  
-before_script:
 
 test:
   script:

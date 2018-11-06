@@ -8,7 +8,22 @@ See the [haxe grig documentation](https://haxe-grig.gitlab.io/grig/).
 
 Stuff for working with midi data and midi files.
 
-To do:
+## Todo
 
 * Writing midi files (we have reading already)
 * Support for hardware ports for targets that support it (we have this on python target already)
+* Install packages automatically somehow (make instructions unnecessary)
+
+## Instructions
+
+### python
+
+Install python-rtmidi if you want midi port support:
+
+`pip install python-rtmidi`
+
+### nodejs
+
+Install midi if you want midi port support:
+
+`sudo npm install midi -g --python=/usr/bin/python2.7 --unsafe-perm`
