@@ -1,5 +1,9 @@
 package grig.midi;
 
+#if (nodejs || python)
+typedef MidiOut = grig.midi.rtmidi.MidiOut;
+#else
+
 extern class MidiOut
 {
     public function new();
@@ -8,6 +12,7 @@ extern class MidiOut
     public function openVirtualPort(portName:String):Void;
     public function closePort():Void;
     public function isPortOpen():Bool;
-    public function cancelCallback():Void;
     public function sendMessage(midiMessage:MidiMessage):Void;
 }
+
+#end

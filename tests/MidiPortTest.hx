@@ -35,20 +35,20 @@ class MidiPortTest {
         return assert(true);
     }
 
-    // @:exclude
-    // public function testMidiOut()
-    // {
-    //     var midiOut = new MidiOut();
-    //     trace(midiOut.getPorts());
-    //     midiOut.openPort(0, 'grig.midi');
-    //     for (i in 1...5) {
-    //         Sys.sleep(1);
-    //         midiOut.sendMessage(new MidiMessage(9455930));
-    //         Sys.sleep(1);
-    //         midiOut.sendMessage(new MidiMessage(8407360));
-    //     }
-    //     midiOut.closePort();
-    //     return assert(true);
-    // }
+    @:exclude
+    public function testMidiOut()
+    {
+        var midiOut = new MidiOut();
+        trace(midiOut.getPorts());
+        midiOut.openPort(0, 'grig.midi');
+        for (i in 1...5) {
+            sleep(1);
+            midiOut.sendMessage(new MidiMessage(9455930));
+            sleep(1);
+            midiOut.sendMessage(new MidiMessage(8407360));
+        }
+        midiOut.closePort();
+        return assert(true);
+    }
 
 }
