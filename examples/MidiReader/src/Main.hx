@@ -31,6 +31,7 @@ class Main
         var midiIn = new MidiIn();
         midiIn.setCallback(function (midiMessage:MidiMessage, delta:Float) {
             trace(midiMessage.messageType);
+            trace(delta);
         });
         midiIn.getPorts().handle(function(outcome) {
             switch outcome {
@@ -39,11 +40,11 @@ class Main
                     midiIn.openPort(0, 'grig.midi').handle(function(midiOutcome) {
                         switch midiOutcome {
                             case Success(_):
+                                mainLoop(midiIn);
                             case Failure(error):
                                 trace(error);
                         }
                     });
-                    mainLoop(midiIn);
                 case Failure(error):
                     trace(error);
             }

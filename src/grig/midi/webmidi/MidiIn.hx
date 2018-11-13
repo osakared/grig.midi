@@ -16,7 +16,6 @@ class MidiIn
     private function handleMidiEvent(midiMessageEvent:MIDIMessageEvent)
     {
         if (callback != null) {
-            var dataView = new js.html.DataView(midiMessageEvent.data.buffer);
             callback(MidiMessage.fromArray([midiMessageEvent.data[0], midiMessageEvent.data[1], midiMessageEvent.data[2]]), midiMessageEvent.timeStamp - lastTime);
             lastTime = midiMessageEvent.timeStamp;
         }
@@ -57,6 +56,10 @@ class MidiIn
                 _callback(Failure(new Error(InternalError, 'MIDIInput not available')));
                 return;
             }
+            if (isPortOpen()) {
+                _callback(Failure(new Error(InternalError, 'Midi port already open')));
+                return;
+            }
             var i = 0;
             midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
                 if (i == portNumber) {
@@ -65,10 +68,12 @@ class MidiIn
                         midiInput = _midiInput;
                         _callback(Success(true));
                     });
+                    i = -1;
                     return;
                 }
                 i++;
             });
+            if (i != -1) _callback(Failure(new Error(InternalError, 'Port number out of range')));
         });
     }
 
@@ -81,13 +86,16 @@ class MidiIn
 
     public function closePort():Void
     {
-
+        if (midiInput != null) {
+            midiInput.close().then(function(_midiInput:MIDIInput) {
+                midiInput = null;
+            });
+        }
     }
 
     public function isPortOpen():Bool
     {
-        
-        return false;
+        return (midiInput != null && midiInput.state == 'connected');
     }
 
     public function setCallback(_callback:(MidiMessage, Float)->Void):Void
