@@ -73,7 +73,7 @@ class MidiIn
                 }
                 i++;
             });
-            if (i != -1) _callback(Failure(new Error(InternalError, 'Port number out of range')));
+            if (i != -1) _callback(Failure(new Error(InternalError, 'Port number out of range: $portNumber')));
         });
     }
 

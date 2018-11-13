@@ -1,6 +1,10 @@
 package grig.midi.rtmidi;
 
+import python.Exceptions;
 import python.Tuple;
+import tink.core.Error;
+import tink.core.Future;
+import tink.core.Outcome;
 
 @:pythonImport('rtmidi', 'MidiIn')
 @:native('MidiIn')
@@ -19,25 +23,46 @@ extern class NativeMidiIn
 class MidiIn
 {
     private var midiIn:NativeMidiIn;
+    private var callback:(MidiMessage, Float)->Void;
 
+    private function handleMidiEvent(message:Tuple2<Array<Int>, Float>, data:Dynamic)
+    {
+        if (callback != null) {
+            callback(MidiMessage.fromArray(message._1), message._2);
+        }
+    }
+ 
     public function new()
     {
         midiIn = new NativeMidiIn();
+        midiIn.set_callback(handleMidiEvent);
     }
 
-    public function getPorts():Array<String>
+    public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        return midiIn.get_ports();
+        return Future.sync(Success(midiIn.get_ports()));
     }
 
-    public function openPort(portNumber:Int, portName:String):Void
+    public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>
     {
-        midiIn.open_port(portNumber, portName);
+        try {
+            midiIn.open_port(portNumber, portName);
+            return Future.sync(Success(true));
+        }
+        catch (exception:BaseException) {
+            return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
+        }
     }
 
-    public function openVirtualPort(portName:String):Void
+    public function openVirtualPort(portName:String):Surprise<Bool, tink.core.Error>
     {
-        midiIn.open_virtual_port(portName);
+        try {
+            midiIn.open_virtual_port(portName);
+            return Future.sync(Success(true));
+        }
+        catch (exception:BaseException) {
+            return Failure(new Error(InternalError, 'Virtual ports not supported'));
+        }
     }
 
     public function closePort():Void
@@ -50,15 +75,13 @@ class MidiIn
         return midiIn.is_port_open();
     }
 
-    public function setCallback(callback:(MidiMessage, Float)->Void):Void
+    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
     {
-        midiIn.set_callback(function (message:Tuple2<Array<Int>, Float>, data:Dynamic) {
-            callback(MidiMessage.fromArray(message._1), message._2);
-        });
+        callback = _callback;
     }
 
     public function cancelCallback():Void
     {
-        midiIn.cancel_callback();
+        callback = null;
     }
 }
