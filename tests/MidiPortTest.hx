@@ -3,7 +3,6 @@ package;
 import grig.midi.MidiIn;
 import grig.midi.MidiMessage;
 import grig.midi.MidiOut;
-import haxe.Timer;
 import tink.unit.Assert.*;
 
 @:asserts
@@ -29,7 +28,6 @@ class MidiPortTest {
             trace(midiMessage.messageType);
         });
         midiIn.openPort(0, 'grig.midi');
-        var timer = new Timer(5000);
         sleep(5);
         midiIn.closePort();
         return assert(true);
