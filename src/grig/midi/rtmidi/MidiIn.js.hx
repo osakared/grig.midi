@@ -1,5 +1,9 @@
 package grig.midi.rtmidi;
 
+import tink.core.Error;
+import tink.core.Future;
+import tink.core.Outcome;
+
 @:jsRequire('midi','input')
 extern class NativeMidiIn
 {
@@ -17,30 +21,54 @@ extern class NativeMidiIn
 class MidiIn
 {
     private var input:NativeMidiIn;
+    private var callback:(MidiMessage, Float)->Void;
+
+    private function handleMidiEvent(delta:Float, message:Array<Int>)
+    {
+        if (callback != null) callback(MidiMessage.fromArray(message), delta);
+    }
 
     public function new()
     {
         input = new NativeMidiIn();
+        input.on('message', handleMidiEvent);
     }
 
-    public function getPorts():Array<String>
+    public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        var numInputs = input.getPortCount();
-        var ports = new Array<String>();
-        for (i in 0...numInputs) {
-            ports.push(input.getPortName(i));
+        try {
+            var numInputs = input.getPortCount();
+            var ports = new Array<String>();
+            for (i in 0...numInputs) {
+                ports.push(input.getPortName(i));
+            }
+            return Future.sync(Success(ports));
         }
-        return ports;
+        catch (exception:Dynamic) {
+            return Future.sync(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+        }
     }
 
-    public function openPort(portNumber:Int, portName:String):Void
+    public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>
     {
-        input.openPort(portNumber, portName);
+        try {
+            input.openPort(portNumber, portName);
+            return Future.sync(Success(true));
+        }
+        catch (exception:Dynamic) {
+            return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
+        }
     }
 
-    public function openVirtualPort(portName:String):Void
+    public function openVirtualPort(portName:String):Surprise<Bool, tink.core.Error>
     {
-        input.openVirtualPort(portName);
+        try {
+            input.openVirtualPort(portName);
+            return Future.sync(Success(true));
+        }
+        catch (exception:Dynamic) {
+            return Failure(new Error(InternalError, 'Failed to open virtual midi port'));
+        }
     }
 
     public function closePort():Void
@@ -53,17 +81,13 @@ class MidiIn
         return input.isPortOpen();
     }
 
-    public function setCallback(callback:(MidiMessage, Float)->Void):Void
+    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
     {
-        trace('setting callback');
-        input.on('message', function(delta:Float, message:Array<Int>) {
-            trace(delta);
-            callback(MidiMessage.fromArray(message), delta);
-        });
+        callback = _callback;
     }
 
     public function cancelCallback():Void
     {
-        input.cancelCallback();
+        callback = null;
     }
 }

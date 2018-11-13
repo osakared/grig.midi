@@ -40,7 +40,12 @@ class MidiIn
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        return Future.sync(Success(midiIn.get_ports()));
+        try {
+            return Future.sync(Success(midiIn.get_ports()));
+        }
+        catch (exception:BaseException) {
+            return Future.sync(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+        }
     }
 
     public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>
@@ -61,7 +66,7 @@ class MidiIn
             return Future.sync(Success(true));
         }
         catch (exception:BaseException) {
-            return Failure(new Error(InternalError, 'Virtual ports not supported'));
+            return Failure(new Error(InternalError, 'Failed to open virtual midi port'));
         }
     }
 
