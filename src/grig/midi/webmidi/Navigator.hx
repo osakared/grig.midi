@@ -1,4 +1,4 @@
-package grig.midi.webmidi;
+package grig.midi.webmidi; #if (js && !nodejs)
 
 import js.Promise;
 
@@ -7,3 +7,5 @@ extern class Navigator
 {
     function requestMIDIAccess():Promise<MIDIAccess>;
 }
+
+#end

@@ -1,4 +1,4 @@
-package grig.midi.rtmidi;
+package grig.midi.rtmidi; #if python
 
 import python.Exceptions;
 import tink.core.Error;
@@ -104,3 +104,5 @@ class MidiOut
         }
     }
 }
+
+#end

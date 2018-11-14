@@ -1,4 +1,4 @@
-package grig.midi.webmidi;
+package grig.midi.webmidi;  #if (js && !nodejs)
 
 @:native('MIDIInput')
 extern class MIDIInput
@@ -9,3 +9,5 @@ extern class MIDIInput
     public function open():js.Promise<MIDIInput>;
     public function close():js.Promise<MIDIInput>;
 }
+
+#end

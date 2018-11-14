@@ -1,4 +1,4 @@
-package grig.midi.rtmidi;
+package grig.midi.rtmidi; #if python
 
 import python.Exceptions;
 import python.Tuple;
@@ -111,3 +111,5 @@ class MidiIn
         callback = null;
     }
 }
+
+#end

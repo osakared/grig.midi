@@ -11,9 +11,6 @@ class RunTests
         Runner.run(TestBatch.make([
             new MidiFileTest(),
             new MidiMessageTest(),
-            #if (python || nodejs)
-            new MidiPortTest(),
-            #end
         ])).handle(Runner.exit);
     }
 

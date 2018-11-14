@@ -1,4 +1,4 @@
-package grig.midi.webmidi;
+package grig.midi.webmidi;  #if (js && !nodejs)
 
 import tink.core.Error;
 import tink.core.Future;
@@ -108,3 +108,5 @@ class MidiIn
         callback = null;
     }
 }
+
+#end

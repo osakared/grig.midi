@@ -1,4 +1,4 @@
-package grig.midi.rtmidi;
+package grig.midi.rtmidi; #if nodejs
 
 import tink.core.Error;
 import tink.core.Future;
@@ -108,3 +108,5 @@ class MidiOut
         }
     }
 }
+
+#end
