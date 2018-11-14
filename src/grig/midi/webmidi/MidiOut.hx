@@ -89,6 +89,11 @@ class MidiOut
 
     public function sendMessage(midiMessage:MidiMessage)
     {
-        midiOutput.send([midiMessage.byte1, midiMessage.byte2, midiMessage.byte3]);
+        try {
+            midiOutput.send([midiMessage.byte1, midiMessage.byte2, midiMessage.byte3]);
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 }

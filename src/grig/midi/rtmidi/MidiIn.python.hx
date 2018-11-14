@@ -34,50 +34,71 @@ class MidiIn
  
     public function new()
     {
-        midiIn = new NativeMidiIn();
-        midiIn.set_callback(handleMidiEvent);
+        try {
+            midiIn = new NativeMidiIn();
+            midiIn.set_callback(handleMidiEvent);
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure while initializing MidiIn');
+        }
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        try {
-            return Future.sync(Success(midiIn.get_ports()));
-        }
-        catch (exception:BaseException) {
-            return Future.sync(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
-        }
+        return Future.async(function(_callback) {
+            try {
+                return _callback(Success(midiIn.get_ports()));
+            }
+            catch (exception:BaseException) {
+                return _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+            }
+        });
     }
 
     public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>
     {
-        try {
-            midiIn.open_port(portNumber, portName);
-            return Future.sync(Success(this));
-        }
-        catch (exception:BaseException) {
-            return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
-        }
+        return Future.async(function(_callback) {
+            try {
+                midiIn.open_port(portNumber, portName);
+                _callback(Success(this));
+            }
+            catch (exception:BaseException) {
+                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
+            }
+        });
     }
 
     public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>
     {
-        try {
-            midiIn.open_virtual_port(portName);
-            return Future.sync(Success(this));
-        }
-        catch (exception:BaseException) {
-            return Failure(new Error(InternalError, 'Failed to open virtual midi port'));
-        }
+        return Future.async(function(_callback) {
+            try {
+                midiIn.open_virtual_port(portName);
+                _callback(Success(this));
+            }
+            catch (exception:BaseException) {
+                _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port')));
+            }
+        });
     }
 
     public function closePort():Void
     {
-        midiIn.close_port();
+        try {
+            midiIn.close_port();
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on close_port');
+        }
     }
 
     public function isPortOpen():Bool
     {
-        return midiIn.is_port_open();
+        try {
+            return midiIn.is_port_open();
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on is_port_open');
+        }
     }
 
     public function setCallback(_callback:(MidiMessage, Float)->Void):Void

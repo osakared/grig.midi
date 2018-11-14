@@ -15,7 +15,6 @@ class MidiIn
 
     private function handleMidiEvent(midiMessageEvent:MIDIMessageEvent)
     {
-        trace(midiMessageEvent.data);
         if (callback != null) {
             callback(MidiMessage.fromArray([midiMessageEvent.data[0], midiMessageEvent.data[1], midiMessageEvent.data[2]]), midiMessageEvent.timeStamp - lastTime);
             lastTime = midiMessageEvent.timeStamp;

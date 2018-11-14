@@ -1,5 +1,10 @@
 package grig.midi.rtmidi;
 
+import python.Exceptions;
+import tink.core.Error;
+import tink.core.Future;
+import tink.core.Outcome;
+
 @:pythonImport('rtmidi', 'MidiOut')
 @:native('MidiOut')
 extern class NativeMidiOut
@@ -19,40 +24,83 @@ class MidiOut
 
     public function new()
     {
-        midiOut = new NativeMidiOut();
+        try {
+            midiOut = new NativeMidiOut();
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure while initializing MidiOut');
+        }
     }
 
-    public function getPorts():Array<String>
+    public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        return midiOut.get_ports();
+        return Future.async(function(_callback) {
+            try {
+                _callback(Success(midiOut.get_ports()));
+            }
+            catch (exception:BaseException) {
+                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports.')));
+            }
+        });
     }
 
-    public function openPort(portNumber:Int, portName:String):Void
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, tink.core.Error>
     {
-        midiOut.open_port(portNumber, portName);
+        return Future.async(function(_callback) {
+            try {
+                midiOut.open_port(portNumber, portName);
+                _callback(Success(this));
+            }
+            catch (exception:BaseException) {
+                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
+            }
+        });
     }
 
-    public function openVirtualPort(portName:String):Void
+    public function openVirtualPort(portName:String):Surprise<MidiOut, tink.core.Error>
     {
-        midiOut.open_virtual_port(portName);
+        return Future.async(function(_callback) {
+            try {
+                midiOut.open_virtual_port(portName);
+                _callback(Success(this));
+            }
+            catch (exception:BaseException) {
+                _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port')));
+            }
+        });
     }
 
     public function closePort():Void
     {
-        midiOut.close_port();
+        try {
+            midiOut.close_port();
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on close_port');
+        }
     }
 
     public function isPortOpen():Bool
     {
-        return midiOut.is_port_open();
+        try {
+            return midiOut.is_port_open();
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on is_port_open');
+        }
     }
 
     public function sendMessage(message:MidiMessage):Void
     {
-        var messageArray = new Array<Int>();
-        messageArray.push(message.byte1);
-        messageArray.push(message.byte2);
-        messageArray.push(message.byte3);
-        midiOut.send_message(messageArray);
+        try {
+            var messageArray = new Array<Int>();
+            messageArray.push(message.byte1);
+            messageArray.push(message.byte2);
+            messageArray.push(message.byte3);
+            midiOut.send_message(messageArray);
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on send_message');
+        }
     }
 }

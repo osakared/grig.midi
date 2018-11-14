@@ -30,55 +30,76 @@ class MidiIn
 
     public function new()
     {
-        input = new NativeMidiIn();
-        input.on('message', handleMidiEvent);
+        try {
+            input = new NativeMidiIn();
+            input.on('message', handleMidiEvent);
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        try {
-            var numInputs = input.getPortCount();
-            var ports = new Array<String>();
-            for (i in 0...numInputs) {
-                ports.push(input.getPortName(i));
+        return Future.async(function(_callback) {
+            try {
+                var numInputs = input.getPortCount();
+                var ports = new Array<String>();
+                for (i in 0...numInputs) {
+                    ports.push(input.getPortName(i));
+                }
+                _callback(Success(ports));
             }
-            return Future.sync(Success(ports));
-        }
-        catch (exception:js.Error) {
-            return Future.sync(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
-        }
+            catch (exception:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+            }
+        });
     }
 
     public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>
     {
-        try {
-            input.openPort(portNumber, portName);
-            return Future.sync(Success(this));
-        }
-        catch (exception:js.Error) {
-            return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
-        }
+        return Future.async(function(_callback) {
+            try {
+                input.openPort(portNumber, portName);
+                _callback(Success(this));
+            }
+            catch (error:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error.message' )));
+            }
+        });
     }
 
     public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>
     {
-        try {
-            input.openVirtualPort(portName);
-            return Future.sync(Success(this));
-        }
-        catch (exception:js.Error) {
-            return Failure(new Error(InternalError, 'Failed to open virtual midi port'));
-        }
+        return Future.async(function(_callback) {
+            try {
+                input.openVirtualPort(portName);
+                _callback(Success(this));
+            }
+            catch (error:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port: $error.message')));
+            }
+        });
     }
 
     public function closePort():Void
     {
-        input.closePort();
+        try {
+            input.closePort();
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
     public function isPortOpen():Bool
     {
-        return input.isPortOpen();
+        try {
+            return input.isPortOpen();
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
     public function setCallback(_callback:(MidiMessage, Float)->Void):Void

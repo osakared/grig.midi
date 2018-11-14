@@ -1,5 +1,9 @@
 package grig.midi.rtmidi;
 
+import tink.core.Error;
+import tink.core.Future;
+import tink.core.Outcome;
+
 @:jsRequire('midi','output')
 extern class NativeMidiOut
 {
@@ -19,45 +23,88 @@ class MidiOut
 
     public function new()
     {
-        output = new NativeMidiOut();
-    }
-
-    public function getPorts():Array<String>
-    {
-        var numInputs = output.getPortCount();
-        var ports = new Array<String>();
-        for (i in 0...numInputs) {
-            ports.push(output.getPortName(i));
+        try {
+            output = new NativeMidiOut();
         }
-        return ports;
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
-    public function openPort(portNumber:Int, portName:String):Void
+    public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
-        output.openPort(portNumber, portName);
+        return Future.async(function(_callback) {
+            try {
+                var numInputs = output.getPortCount();
+                var ports = new Array<String>();
+                for (i in 0...numInputs) {
+                    ports.push(output.getPortName(i));
+                }
+                _callback(Success(ports));
+            }
+            catch (error:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports. $error.message')));
+            }
+        });
     }
 
-    public function openVirtualPort(portName:String):Void
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, tink.core.Error>
     {
-        output.openVirtualPort(portName);
+        return Future.async(function(_callback) {
+            try {
+                output.openPort(portNumber, portName);
+                _callback(Success(this));
+            }
+            catch (error:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error')));
+            }
+        });
+    }
+
+    public function openVirtualPort(portName:String):Surprise<MidiOut, tink.core.Error>
+    {
+        return Future.async(function(_callback) { 
+            try {
+                output.openVirtualPort(portName);
+                _callback(Success(this));
+            }
+            catch (exception:js.Error) {
+                _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port')));
+            }
+        });
     }
 
     public function closePort():Void
     {
-        output.closePort();
+        try {
+            output.closePort();
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
     public function isPortOpen():Bool
     {
-        return output.isPortOpen();
+        try {
+            return output.isPortOpen();
+        }
+        catch (error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 
     public function sendMessage(message:MidiMessage):Void
     {
-        var messageArray = new Array<Int>();
-        messageArray.push(message.byte1);
-        messageArray.push(message.byte2);
-        messageArray.push(message.byte3);
-        output.sendMessage(messageArray);
+        try {
+            var messageArray = new Array<Int>();
+            messageArray.push(message.byte1);
+            messageArray.push(message.byte2);
+            messageArray.push(message.byte3);
+            output.sendMessage(messageArray);
+        }
+        catch(error:js.Error) {
+            throw new Error(InternalError, error.message);
+        }
     }
 }

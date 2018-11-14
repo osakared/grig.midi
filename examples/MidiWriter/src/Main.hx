@@ -14,31 +14,12 @@ class Main
     {
         var counter:Int = 0;
         var beatTimer = new Timer(500);
-        var durationTimer = new Timer(5000);
 
         beatTimer.run = function() {
             midiOut.sendMessage(MidiMessage.fromArray(counter % 2 == 0 ? [144,54,70] : [128,54,64]));
+            if (counter == 7) beatTimer.stop();
             counter++;
         }
-
-        durationTimer.run = function() {
-            beatTimer.stop();
-            durationTimer.stop();
-        }
-
-        #if (sys && !nodejs)
-        var stdout = Sys.stdout();
-        var stdin = Sys.stdin();
-        // Using Sys.getChar() unfortunately fucks up the output
-        stdout.writeString('quit[enter] to quit\n');
-        while (true) {
-            var command = stdin.readLine();
-            if (command.toLowerCase() == 'quit') {
-                midiOut.closePort();
-                return;
-            }
-        }
-        #end
     }
 
     static function main()
