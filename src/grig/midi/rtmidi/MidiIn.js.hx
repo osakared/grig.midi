@@ -44,29 +44,29 @@ class MidiIn
             }
             return Future.sync(Success(ports));
         }
-        catch (exception:Dynamic) {
+        catch (exception:js.Error) {
             return Future.sync(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
         }
     }
 
-    public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>
     {
         try {
             input.openPort(portNumber, portName);
-            return Future.sync(Success(true));
+            return Future.sync(Success(this));
         }
-        catch (exception:Dynamic) {
+        catch (exception:js.Error) {
             return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
         }
     }
 
-    public function openVirtualPort(portName:String):Surprise<Bool, tink.core.Error>
+    public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>
     {
         try {
             input.openVirtualPort(portName);
-            return Future.sync(Success(true));
+            return Future.sync(Success(this));
         }
-        catch (exception:Dynamic) {
+        catch (exception:js.Error) {
             return Failure(new Error(InternalError, 'Failed to open virtual midi port'));
         }
     }

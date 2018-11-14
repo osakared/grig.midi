@@ -12,8 +12,8 @@ extern class MidiIn
 {
     public function new();
     public function getPorts():Surprise<Array<String>, tink.core.Error>;
-    public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>;
-    public function openVirtualPort(portName:String):Surprise<Bool, tink.core.Error>;
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>;
+    public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>;
     public function closePort():Void;
     public function isPortOpen():Bool;
     public function setCallback(callback:(MidiMessage, Float)->Void):Void;

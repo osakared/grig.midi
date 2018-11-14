@@ -48,22 +48,22 @@ class MidiIn
         }
     }
 
-    public function openPort(portNumber:Int, portName:String):Surprise<Bool, tink.core.Error>
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>
     {
         try {
             midiIn.open_port(portNumber, portName);
-            return Future.sync(Success(true));
+            return Future.sync(Success(this));
         }
         catch (exception:BaseException) {
             return Future.sync(Failure(new Error(InternalError, 'Failed to open port $portNumber')));
         }
     }
 
-    public function openVirtualPort(portName:String):Surprise<Bool, tink.core.Error>
+    public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>
     {
         try {
             midiIn.open_virtual_port(portName);
-            return Future.sync(Success(true));
+            return Future.sync(Success(this));
         }
         catch (exception:BaseException) {
             return Failure(new Error(InternalError, 'Failed to open virtual midi port'));

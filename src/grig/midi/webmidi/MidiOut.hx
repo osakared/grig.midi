@@ -4,23 +4,12 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-class MidiIn
+class MidiOut
 {
     private var midiAccess:MIDIAccess;
-    private var midiInput:MIDIInput;
+    private var midiOutput:MIDIOutput;
     private var midiAccessFuture:js.Promise<Void>;
     private var ports:Array<String>;
-    private var callback:(MidiMessage, Float)->Void;
-    private var lastTime:Float = 0;
-
-    private function handleMidiEvent(midiMessageEvent:MIDIMessageEvent)
-    {
-        trace(midiMessageEvent.data);
-        if (callback != null) {
-            callback(MidiMessage.fromArray([midiMessageEvent.data[0], midiMessageEvent.data[1], midiMessageEvent.data[2]]), midiMessageEvent.timeStamp - lastTime);
-            lastTime = midiMessageEvent.timeStamp;
-        }
-    }
 
     public function new()
     {
@@ -30,7 +19,7 @@ class MidiIn
         if (untyped __js__('navigator.requestMIDIAccess != undefined')) {
             midiAccessFuture = nagivator.requestMIDIAccess().then(function(_midiAccess:MIDIAccess) {
                 midiAccess = _midiAccess;
-                midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
+                midiAccess.outputs.forEach(function(value:MIDIOutput, key:String, map) {
                     ports.push(value.name);
                 });
                 midiAccessFuture = null;
@@ -50,11 +39,11 @@ class MidiIn
         });
     }
 
-    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, Error>
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, Error>
     {
         return Future.async(function(_callback) {
             if (midiAccess == null) {
-                _callback(Failure(new Error(InternalError, 'MIDIInput not available')));
+                _callback(Failure(new Error(InternalError, 'MIDIOutput not available')));
                 return;
             }
             if (isPortOpen()) {
@@ -62,11 +51,10 @@ class MidiIn
                 return;
             }
             var i = 0;
-            midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
+            midiAccess.outputs.forEach(function(value:MIDIOutput, key:String, map) {
                 if (i == portNumber) {
-                    value.onmidimessage = handleMidiEvent;
-                    value.open().then(function(_midiInput:MIDIInput) {
-                        midiInput = _midiInput;
+                    value.open().then(function(_midiOutput:MIDIOutput) {
+                        midiOutput = _midiOutput;
                         _callback(Success(this));
                     });
                     i = -1;
@@ -78,7 +66,7 @@ class MidiIn
         });
     }
 
-    public function openVirtualPort(portName:String):Surprise<MidiIn, Error>
+    public function openVirtualPort(portName:String):Surprise<MidiOut, Error>
     {
         return Future.async(function(_callback) {
             _callback(Failure(new Error(InternalError, 'Virtual ports not supported')));
@@ -87,25 +75,20 @@ class MidiIn
 
     public function closePort():Void
     {
-        if (midiInput != null) {
-            midiInput.close().then(function(_midiInput:MIDIInput) {
-                midiInput = null;
+        if (midiOutput != null) {
+            midiOutput.close().then(function(_midiOutput:MIDIOutput) {
+                midiOutput = null;
             });
         }
     }
 
     public function isPortOpen():Bool
     {
-        return (midiInput != null && midiInput.state == 'connected');
+        return (midiOutput != null && midiOutput.state == 'connected');
     }
 
-    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
+    public function sendMessage(midiMessage:MidiMessage)
     {
-        callback = _callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
+        midiOutput.send([midiMessage.byte1, midiMessage.byte2, midiMessage.byte3]);
     }
 }
