@@ -1,0 +1,3 @@
+[submodule "src/grig/midi/rtmidi/rtmidi"]
+	path = src/grig/midi/rtmidi/rtmidi
+	url = https://github.com/thestk/rtmidi.git

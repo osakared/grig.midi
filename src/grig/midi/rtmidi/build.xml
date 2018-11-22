@@ -1,0 +1,14 @@
+<xml>
+    <files id="rtmidi-files" dir="rtmidi">
+        <file name="RtMidi.cpp" />
+        <file name="RtMidi.h" />
+        <file name="rtmidi_c.cpp" />
+        <file name="rtmidi_c.h" />
+    </files>
+    <target id="default" output="librtmidi" tool="linker" toolid="static_link">
+        <files id="rtmidi-files" />
+        <ext value=".a" unless="windows" />
+        <ext value=".lib" if="windows" />
+        <outdir name="build" />
+    </target>
+</xml>
