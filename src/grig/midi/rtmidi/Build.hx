@@ -37,20 +37,39 @@ class Build
         _files.addChild(_file);
         _topElement.addChild(_files);
 
-        var _target = Xml.createElement('target');
-        _target.set('id', 'haxe');
-        _target.set('tool', 'linker');
-        _target.set('toolid', '$${haxelink}');
-        _target.set('output', '$${HAXE_OUTPUT_FILE}');
+        var _haxeTarget = Xml.createElement('target');
+        _haxeTarget.set('id', 'haxe');
+        _haxeTarget.set('tool', 'linker');
+        _haxeTarget.set('toolid', '$${haxelink}');
+        _haxeTarget.set('output', '$${HAXE_OUTPUT_FILE}');
+        var _libXml = Xml.createElement('lib');
+        _libXml.set('name', Path.normalize(Path.join(['build', 'librtmidi$${LIBEXTRA}$${LIBEXT}'])));
+        var _targetDependency = Xml.createElement('target');
+        _targetDependency.set('id', 'default');
+        _haxeTarget.addChild(_libXml);
+        _haxeTarget.addChild(_targetDependency);
+        _topElement.addChild(_haxeTarget);
+
+        var _defaultTarget = Xml.createElement('target');
+        _defaultTarget.set('id', 'default');
+        _defaultTarget.set('tool', 'linker');
+        _defaultTarget.set('toolid', 'static_link');
+        _defaultTarget.set('output', 'librtmidi');
         var _filesRef = Xml.createElement('files');
         _filesRef.set('id', rtmidiFiles);
-        _target.addChild(_filesRef);
-        _topElement.addChild(_target);
+        var _outdir = Xml.createElement('outdir');
+        _outdir.set('name', 'build');
+        _defaultTarget.addChild(_filesRef);
+        _defaultTarget.addChild(_outdir);
+        _topElement.addChild(_defaultTarget);
 
         var filesString = _files.toString();
-        var targetString = _target.toString();
+        var haxeTargetString = _haxeTarget.toString();
+        var defaultTargetString = _defaultTarget.toString();
 
-        _class.get().meta.add(":buildXml", [{ expr:EConst( CString( '$filesString\n$targetString' ) ), pos:_pos }], _pos );
+        trace(_xml.toString());
+
+        _class.get().meta.add(":buildXml", [{ expr:EConst( CString( '$filesString\n$haxeTargetString\n$defaultTargetString' ) ), pos:_pos }], _pos );
 
         return Context.getBuildFields();
     }

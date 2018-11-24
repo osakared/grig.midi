@@ -9,8 +9,6 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-// @:buildXml('<include name="/Users/pinkboi/src/grig.midi/src/grig/midi/rtmidi/build.xml" />')
-
 @:structAccess
 @:native('std::vector<unsigned char>')
 extern class UInt8Vector {
