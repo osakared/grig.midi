@@ -8,6 +8,40 @@ using haxe.macro.PositionTools;
 
 class Build
 {
+    private static function addCoreFlags(files:Xml, target:Xml)
+    {
+        var defineXml = Xml.createElement('compilerflag');
+        defineXml.set('value', '-D__MACOSX_CORE__');
+
+        var coreServices = Xml.createElement('vflag');
+        coreServices.set('name', '-framework');
+        coreServices.set('value', 'CoreServices');
+
+        var coreAudio = Xml.createElement('vflag');
+        coreAudio.set('name', '-framework');
+        coreAudio.set('value', 'CoreAudio');
+
+        var coreMIDI = Xml.createElement('vflag');
+        coreMIDI.set('name', '-framework');
+        coreMIDI.set('value', 'CoreMIDI');
+
+        var coreFoundation = Xml.createElement('vflag');
+        coreFoundation.set('name', '-framework');
+        coreFoundation.set('value', 'CoreFoundation');
+
+        var wlFlags = Xml.createElement('flag');
+        wlFlags.set('value', '-Wl,-F/Library/Frameworks');
+
+        for (flag in [defineXml]) {
+            flag.set('if', 'macos || ios');
+            files.addChild(flag);
+        }
+
+        for (flag in [coreServices, coreAudio, coreMIDI, coreFoundation, wlFlags]) {
+            flag.set('if', 'macos || ios');
+            target.addChild(flag);
+        }
+    }
 
     macro public static function xml():Array<Field>
     {
@@ -32,9 +66,11 @@ class Build
         var _files = Xml.createElement('files');
         _files.set('id', rtmidiFiles);
         _files.set('dir', _lib_path);
-        var _file = Xml.createElement('file');
-        _file.set('name', 'RtMidi.cpp');
-        _files.addChild(_file);
+        for (fileName in ['RtMidi.cpp', 'rtmidi_c.cpp']) {
+            var _file = Xml.createElement('file');
+            _file.set('name', fileName);
+            _files.addChild(_file);
+        }
         _topElement.addChild(_files);
 
         var _haxeTarget = Xml.createElement('target');
@@ -63,11 +99,11 @@ class Build
         _defaultTarget.addChild(_outdir);
         _topElement.addChild(_defaultTarget);
 
+        addCoreFlags(_files, _haxeTarget);
+
         var filesString = _files.toString();
         var haxeTargetString = _haxeTarget.toString();
         var defaultTargetString = _defaultTarget.toString();
-
-        trace(_xml.toString());
 
         _class.get().meta.add(":buildXml", [{ expr:EConst( CString( '$filesString\n$haxeTargetString\n$defaultTargetString' ) ), pos:_pos }], _pos );
 

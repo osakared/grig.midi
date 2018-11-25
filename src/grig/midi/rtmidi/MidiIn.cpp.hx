@@ -23,7 +23,7 @@ extern class UInt8Vector {
 @:structAccess
 extern class RtMidiIn
 {
-    @:native("::RtMidiIn")
+    @:native("RtMidiIn")
     static public function create():RtMidiIn;
     public function getPortCount():Int;
     public function getPortName(index:Int):StdString;
@@ -53,7 +53,9 @@ class MidiIn
     public function new()
     {
         try {
+            trace('creating RtMidiIn');
             input = RtMidiIn.create();
+            trace('setting callback');
             input.setCallback(cpp.Function.fromStaticFunction(handleMidiEvent));
         }
         catch (error:Error) {
@@ -65,7 +67,9 @@ class MidiIn
     {
         return Future.async(function(_callback) {
             try {
+                trace('getting num inputs');
                 var numInputs = input.getPortCount();
+                trace('numInputs: $numInputs');
                 var ports = new Array<String>();
                 for (i in 0...numInputs) {
                     var portName:StdStringRef = input.getPortName(i);
