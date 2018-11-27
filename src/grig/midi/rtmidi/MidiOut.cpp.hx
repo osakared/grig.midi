@@ -129,7 +129,7 @@ class MidiOut
     {
         var inArray = message.toArray();
         var outLength = inArray.length;
-        var outArray:cpp.RawPointer<cpp.UInt8> = untyped __cpp__('new unsigned char[outLength]');
+        var outArray:cpp.RawPointer<cpp.UInt8> = untyped __cpp__('new unsigned char[outLength]'); // Might be good to have Gc do this instead?
         for (i in 0...outLength) {
             outArray[i] = inArray[i];
         }
