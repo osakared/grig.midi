@@ -7,6 +7,7 @@ import cpp.Pointer;
 import cpp.StdString;
 import cpp.StdStringRef;
 import cpp.UInt8;
+import cpp.vm.Gc;
 
 import tink.core.Error;
 import tink.core.Future;
@@ -50,9 +51,15 @@ class MidiOut
         throw new Error(InternalError, message.toString());
     }
 
+    private static function onDestruct(midiOut:MidiOut)
+    {
+        RtMidiOut.destroy(midiOut.output);
+    }
+
     public function new()
     {
         output = RtMidiOut.create();
+        Gc.setFinalizer(this, cpp.Function.fromStaticFunction(onDestruct));
         checkError();
     }
 

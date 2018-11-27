@@ -7,6 +7,7 @@ import cpp.Pointer;
 import cpp.StdString;
 import cpp.StdStringRef;
 import cpp.UInt8;
+import cpp.vm.Gc;
 
 import tink.core.Error;
 import tink.core.Future;
@@ -64,9 +65,15 @@ class MidiIn
         if (midiIn.callback != null) midiIn.callback(MidiMessage.fromArray(messageArray), delta);
     }
 
+    private static function onDestruct(midiIn:MidiIn)
+    {
+        RtMidiIn.destroy(midiIn.input);
+    }
+
     public function new()
     {
         input = RtMidiIn.create();
+        Gc.setFinalizer(this, cpp.Function.fromStaticFunction(onDestruct));
         checkError();
         RtMidiIn.setCallback(input, cpp.Function.fromStaticFunction(handleMidiEvent), untyped __cpp__('(void*)this'));
         checkError();
