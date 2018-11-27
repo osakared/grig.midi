@@ -16,6 +16,10 @@ Stuff for working with midi data and midi files.
 
 ## Instructions
 
+`git submodule init && git submodule update` to get external dependencies.
+
+Make sure alsa-dev is installed on your system if you're on linux and building hxcpp version. Probably need it for other bindings as well.
+
 ### python
 
 Install python-rtmidi if you want midi port support:

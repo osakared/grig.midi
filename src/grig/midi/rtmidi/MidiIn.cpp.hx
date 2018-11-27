@@ -1,6 +1,9 @@
 package grig.midi.rtmidi; #if cpp
 
+import cpp.Char;
+import cpp.ConstPointer;
 import cpp.RawPointer;
+import cpp.Pointer;
 import cpp.StdString;
 import cpp.StdStringRef;
 import cpp.UInt8;
@@ -9,76 +12,90 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-@:structAccess
-@:native('std::vector<unsigned char>')
-extern class UInt8Vector {
-    @:native('std::vector<unsigned char>') public static function create():UInt8Vector;
-    @:native('push_back') public function pushBack(value:UInt8):Void;
-    public function at(index:Int):UInt8;
+@:build(grig.midi.rtmidi.Build.xml())
+@:include('./rtmidi/rtmidi_c.h')
+
+@:native('RtMidiWrapper')
+@:structaccess
+extern class RtMidiWrapper
+{
+    public var ok:Bool;
+    public var msg:StdStringRef;
 }
 
-@:build(grig.midi.rtmidi.Build.xml())
-@:include('./rtmidi/RtMidi.h')
-@:native('::RtMidiIn')
-@:structAccess
+typedef RtMidiInPtr = Pointer<RtMidiWrapper>;
+typedef RtMidiCallback = cpp.Callable<(delta:Float, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.UInt64, userData:RawPointer<cpp.Void>)->Void>;
+
 extern class RtMidiIn
 {
-    @:native("RtMidiIn")
-    static public function create():RtMidiIn;
-    public function getPortCount():Int;
-    public function getPortName(index:Int):StdString;
-    public function openPort(portNumber:Int, portName:StdStringRef):Void;
-    public function openVirtualPort(portName:StdStringRef):Void;
-    public function closePort():Void;
-    public function isPortOpen():Bool;
-    public function setCallback(callback:cpp.Callable<(delta:Float, message:RawPointer<UInt8Vector>, userData:RawPointer<cpp.Void>)->Void>):Void;
-    public function cancelCallback():Void;
+    @:native("rtmidi_in_create_default")
+    static public function create():RtMidiInPtr;
+    @:native("rtmidi_in_free")
+    static public function destroy(rtmidiptr:RtMidiInPtr):Void; // okay, but when do I call this?
+    @:native("rtmidi_get_port_count")
+    static public function getPortCount(rtmidiptr:RtMidiInPtr):Int;
+    @:native("rtmidi_get_port_name")
+    static public function getPortName(rtmidiptr:RtMidiInPtr, index:Int):StdStringRef;
+    @:native("rtmidi_open_port")
+    static public function openPort(rtmidiptr:RtMidiInPtr, portNumber:Int, portName:ConstPointer<Char>):Void;
+    @:native("rtmidi_open_virtual_port")
+    static public function openVirtualPort(rtmidiptr:RtMidiInPtr, portName:ConstPointer<Char>):Void;
+    @:native("rtmidi_close_port")
+    static public function closePort(rtmidiptr:RtMidiInPtr):Void;
+    @:native("rtmidi_in_set_callback")
+    static public function setCallback(rtmidiptr:RtMidiInPtr, callback:RtMidiCallback, userData:Dynamic):Void;
+    @:native("rtmidi_in_cancel_callback")
+    static public function cancelCallback(rtmidiptr:RtMidiInPtr):Void;
 }
 
 class MidiIn
 {
-    private var input:RtMidiIn;
+    private var input:RtMidiInPtr;
+    private var connected:Bool = false;
     private var callback:(MidiMessage, Float)->Void;
 
-    private static function handleMidiEvent(delta:Float, message:RawPointer<UInt8Vector>, userData:RawPointer<cpp.Void>)
+    private function checkError():Void
     {
-
+        if (input.ptr.ok == true) return;
+        var message:StdStringRef = input.ptr.msg;
+        throw new Error(InternalError, message.toString());
     }
 
-    // private function handleMidiEvent(delta:Float, message:Array<Int>, userData:cpp.Pointer<cpp.Void>)
-    // {
-    //     if (callback != null) callback(MidiMessage.fromArray(message), delta);
-    // }
+    private static function handleMidiEvent(delta:Float, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.UInt64, userData:RawPointer<cpp.Void>)
+    {
+        var constMessage = ConstPointer.fromRaw(message);
+        var messageArray = new Array<Int>();
+        for (i in 0...messageSize) {
+            messageArray.push(constMessage.at(i));
+        }
+        var midiIn:MidiIn = untyped __cpp__('(MidiIn_obj*)userData');
+        if (midiIn.callback != null) midiIn.callback(MidiMessage.fromArray(messageArray), delta);
+    }
 
     public function new()
     {
-        try {
-            trace('creating RtMidiIn');
-            input = RtMidiIn.create();
-            trace('setting callback');
-            input.setCallback(cpp.Function.fromStaticFunction(handleMidiEvent));
-        }
-        catch (error:Error) {
-            throw new Error(InternalError, error.message);
-        }
+        input = RtMidiIn.create();
+        checkError();
+        RtMidiIn.setCallback(input, cpp.Function.fromStaticFunction(handleMidiEvent), untyped __cpp__('(void*)this'));
+        checkError();
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
         return Future.async(function(_callback) {
             try {
-                trace('getting num inputs');
-                var numInputs = input.getPortCount();
-                trace('numInputs: $numInputs');
+                var numInputs = RtMidiIn.getPortCount(input);
+                checkError();
                 var ports = new Array<String>();
                 for (i in 0...numInputs) {
-                    var portName:StdStringRef = input.getPortName(i);
+                    var portName:StdStringRef = RtMidiIn.getPortName(input, i);
+                    checkError();
                     ports.push(portName.toString());
                 }
                 _callback(Success(ports));
             }
-            catch (exception:Error) {
-                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+            catch (error:Error) {
+                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports. $error.message')));
             }
         });
     }
@@ -87,11 +104,13 @@ class MidiIn
     {
         return Future.async(function(_callback) {
             try {
-                input.openPort(portNumber, StdString.ofString(portName));
+                RtMidiIn.openPort(input, portNumber, StdString.ofString(portName).c_str());
+                checkError();
+                connected = true;
                 _callback(Success(this));
             }
             catch (error:Error) {
-                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error.message' )));
+                _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error.message')));
             }
         });
     }
@@ -100,7 +119,9 @@ class MidiIn
     {
         return Future.async(function(_callback) {
             try {
-                input.openVirtualPort(StdString.ofString(portName));
+                RtMidiIn.openVirtualPort(input, StdString.ofString(portName).c_str());
+                checkError();
+                connected = true;
                 _callback(Success(this));
             }
             catch (error:Error) {
@@ -112,7 +133,9 @@ class MidiIn
     public function closePort():Void
     {
         try {
-            input.closePort();
+            RtMidiIn.closePort(input);
+            connected = false;
+            checkError();
         }
         catch (error:Error) {
             throw new Error(InternalError, error.message);
@@ -121,12 +144,7 @@ class MidiIn
 
     public function isPortOpen():Bool
     {
-        try {
-            return input.isPortOpen();
-        }
-        catch (error:Error) {
-            throw new Error(InternalError, error.message);
-        }
+        return connected;
     }
 
     public function setCallback(_callback:(MidiMessage, Float)->Void):Void
