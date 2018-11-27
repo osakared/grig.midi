@@ -15,14 +15,6 @@ import tink.core.Outcome;
 @:build(grig.midi.rtmidi.Build.xml())
 @:include('./rtmidi/rtmidi_c.h')
 
-@:native('RtMidiWrapper')
-@:structaccess
-extern class RtMidiWrapper
-{
-    public var ok:Bool;
-    public var msg:StdStringRef;
-}
-
 typedef RtMidiInPtr = Pointer<RtMidiWrapper>;
 typedef RtMidiCallback = cpp.Callable<(delta:Float, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.UInt64, userData:RawPointer<cpp.Void>)->Void>;
 
@@ -132,14 +124,9 @@ class MidiIn
 
     public function closePort():Void
     {
-        try {
-            RtMidiIn.closePort(input);
-            connected = false;
-            checkError();
-        }
-        catch (error:Error) {
-            throw new Error(InternalError, error.message);
-        }
+        RtMidiIn.closePort(input);
+        connected = false;
+        checkError();
     }
 
     public function isPortOpen():Bool

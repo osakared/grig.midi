@@ -62,6 +62,26 @@ class Build
         }
     }
 
+    // Dynamically linking and not statically building a la rtmidi itself because lGPL
+    private static function addJACKFlags(files:Xml, target:Xml)
+    {
+        var defineXml = Xml.createElement('compilerflag');
+        defineXml.set('value', '-D__UNIX_JACK__');
+
+        var libJACK = Xml.createElement('lib');
+        libJACK.set('name', '-ljack');
+
+        for (flag in [defineXml]) {
+            flag.set('if', 'enable_jack');
+            files.addChild(flag);
+        }
+
+        for (flag in [libJACK]) {
+            flag.set('if', 'enable_jack');
+            target.addChild(flag);
+        }
+    }
+
     macro public static function xml():Array<Field>
     {
         var _pos =  Context.currentPos();
@@ -120,6 +140,7 @@ class Build
 
         addCoreFlags(_files, _haxeTarget);
         addALSAFlags(_files, _haxeTarget);
+        addJACKFlags(_files, _haxeTarget);
 
         var filesString = _files.toString();
         var haxeTargetString = _haxeTarget.toString();

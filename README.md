@@ -11,7 +11,6 @@ Stuff for working with midi data and midi files.
 ## Todo
 
 * Writing midi files (we have reading already)
-* Support for hardware ports for targets that support it (we have this on python target already)
 * Install packages automatically somehow (make instructions unnecessary)
 
 ## Instructions
@@ -19,6 +18,10 @@ Stuff for working with midi data and midi files.
 `git submodule init && git submodule update` to get external dependencies.
 
 Make sure alsa-dev is installed on your system if you're on linux and building hxcpp version. Probably need it for other bindings as well.
+
+If you want to use jack, you must have jack2 client on your system and set it enabled when building. For example (with the MidiOutput example):
+
+`haxe build.hxml -D enable_jack -cpp bin/MidiWriter`
 
 ### python
 

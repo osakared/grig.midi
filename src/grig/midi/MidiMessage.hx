@@ -38,6 +38,15 @@ class MidiMessage
         return new MidiMessage(bytes);
     }
 
+    public function toArray():Array<Int>
+    {
+        var array = new Array<Int>();
+        array.push(byte1);
+        array.push(byte2);
+        array.push(byte3);
+        return array;
+    }
+
     private function get_channel():Int
     {
         return (bytes & 0xf0000) >> 0x10;

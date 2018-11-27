@@ -2,7 +2,7 @@ package grig.midi;
 
 import tink.core.Future;
 
-#if (nodejs || python)
+#if (nodejs || python || cpp)
 typedef MidiOut = grig.midi.rtmidi.MidiOut;
 #elseif js
 typedef MidiOut = grig.midi.webmidi.MidiOut;
