@@ -43,6 +43,25 @@ class Build
         }
     }
 
+    private static function addALSAFlags(files:Xml, target:Xml)
+    {
+        var defineXml = Xml.createElement('compilerflag');
+        defineXml.set('value', '-D__LINUX_ALSA__');
+
+        var libALSA = Xml.createElement('lib');
+        libALSA.set('name', '-lasound');
+
+        for (flag in [defineXml]) {
+            flag.set('if', 'linux'); // What do I do about FreeBSD?
+            files.addChild(flag);
+        }
+
+        for (flag in [libALSA]) {
+            flag.set('if', 'linux');
+            target.addChild(flag);
+        }
+    }
+
     macro public static function xml():Array<Field>
     {
         var _pos =  Context.currentPos();
@@ -100,6 +119,7 @@ class Build
         _topElement.addChild(_defaultTarget);
 
         addCoreFlags(_files, _haxeTarget);
+        addALSAFlags(_files, _haxeTarget);
 
         var filesString = _files.toString();
         var haxeTargetString = _haxeTarget.toString();
