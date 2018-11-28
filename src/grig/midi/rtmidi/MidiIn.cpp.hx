@@ -17,7 +17,7 @@ import tink.core.Outcome;
 @:include('./rtmidi/rtmidi_c.h')
 
 typedef RtMidiInPtr = Pointer<RtMidiWrapper>;
-typedef RtMidiCallback = cpp.Callable<(delta:Float, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.UInt64, userData:RawPointer<cpp.Void>)->Void>;
+typedef RtMidiCallback = cpp.Callable<(delta:cpp.Float64, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)->Void>;
 
 extern class RtMidiIn
 {
@@ -54,7 +54,7 @@ class MidiIn
         throw new Error(InternalError, message.toString());
     }
 
-    private static function handleMidiEvent(delta:Float, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.UInt64, userData:RawPointer<cpp.Void>)
+    private static function handleMidiEvent(delta:cpp.Float64, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)
     {
         var constMessage = ConstPointer.fromRaw(message);
         var messageArray = new Array<Int>();

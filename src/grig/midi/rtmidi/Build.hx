@@ -82,6 +82,25 @@ class Build
         }
     }
 
+    private static function addWinMMFlags(files:Xml, target:Xml)
+    {
+        var defineXml = Xml.createElement('compilerflag');
+        defineXml.set('value', '-D__WINDOWS_MM__');
+
+        var libJACK = Xml.createElement('lib');
+        libJACK.set('name', 'winmm.lib');
+
+        for (flag in [defineXml]) {
+            flag.set('if', 'windows');
+            files.addChild(flag);
+        }
+
+        for (flag in [libJACK]) {
+            flag.set('if', 'windows');
+            target.addChild(flag);
+        }
+    }
+
     macro public static function xml():Array<Field>
     {
         var _pos =  Context.currentPos();
@@ -118,7 +137,7 @@ class Build
         _haxeTarget.set('toolid', '$${haxelink}');
         _haxeTarget.set('output', '$${HAXE_OUTPUT_FILE}');
         var _libXml = Xml.createElement('lib');
-        _libXml.set('name', Path.normalize(Path.join(['build', 'librtmidi$${LIBEXTRA}$${LIBEXT}'])));
+        _libXml.set('name', Path.normalize(Path.join(['build', 'librtmidi$${LIBEXT}'])));
         var _targetDependency = Xml.createElement('target');
         _targetDependency.set('id', 'default');
         _haxeTarget.addChild(_libXml);
@@ -141,6 +160,7 @@ class Build
         addCoreFlags(_files, _haxeTarget);
         addALSAFlags(_files, _haxeTarget);
         addJACKFlags(_files, _haxeTarget);
+        addWinMMFlags(_files, _haxeTarget);
 
         var filesString = _files.toString();
         var haxeTargetString = _haxeTarget.toString();
