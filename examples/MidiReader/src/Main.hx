@@ -28,6 +28,7 @@ class Main
     static function main()
     {
         var midiIn = new MidiIn();
+        trace(midiIn.getApis());
         midiIn.setCallback(function (midiMessage:MidiMessage, delta:Float) {
             trace(midiMessage.messageType);
             trace(delta);

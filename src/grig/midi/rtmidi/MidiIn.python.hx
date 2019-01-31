@@ -6,6 +6,16 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
+using haxe.EnumTools;
+
+@:pythonImport('rtmidi')
+@:native('rtmidi')
+extern class RtMidi
+{
+    @:native("get_compiled_api")
+    static public function get_compiled_api():Array<Int>;
+}
+
 @:pythonImport('rtmidi', 'MidiIn')
 @:native('MidiIn')
 extern class NativeMidiIn
@@ -41,6 +51,18 @@ class MidiIn
         catch (exception:BaseException) {
             throw new Error(InternalError, 'Failure while initializing MidiIn');
         }
+    }
+
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        var apiIndices = RtMidi.get_compiled_api();
+        for (i in apiIndices) {
+            apis.push(Api.createByIndex(i));
+        }
+
+        return apis;
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>

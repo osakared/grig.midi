@@ -3,6 +3,7 @@ package grig.midi.rtmidi; #if nodejs
 import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
+import grig.midi.Api;
 
 @:jsRequire('midi','input')
 extern class NativeMidiIn
@@ -37,6 +38,15 @@ class MidiIn
         catch (error:js.Error) {
             throw new Error(InternalError, error.message);
         }
+    }
+
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        // not implemented BOOOO!
+
+        return apis;
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
