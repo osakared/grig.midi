@@ -32,6 +32,18 @@ class MidiOut
         }
     }
 
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        var apiIndices = RtMidi.get_compiled_api();
+        for (i in apiIndices) {
+            apis.push(Api.createByIndex(i));
+        }
+
+        return apis;
+    }
+
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
         return Future.async(function(_callback) {

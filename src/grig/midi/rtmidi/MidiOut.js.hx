@@ -31,6 +31,15 @@ class MidiOut
         }
     }
 
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        // not implemented BOOOO!
+
+        return apis;
+    }
+
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
         return Future.async(function(_callback) {

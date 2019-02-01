@@ -17,12 +17,19 @@ import tink.core.Outcome;
 @:include('./rtmidi/rtmidi_c.h')
 
 typedef RtMidiOutPtr = Pointer<RtMidiWrapper>;
-typedef RtMidiMessage = cpp.RawConstPointer<cpp.UInt8>;
+typedef RtMidiMessage = cpp.RawConstPointer<UInt8>;
+
+@:native('RtMidiApi')
+extern class RtMidiApi
+{
+}
 
 extern class RtMidiOut
 {
     @:native("rtmidi_out_create_default")
     static public function create():RtMidiOutPtr;
+    @:native("rtmidi_get_compiled_api")
+    static public function getCompiledApi(apis:RawPointer<RtMidiApi>, apisSize:Int):Int;
     @:native("rtmidi_out_free")
     static public function destroy(rtmidiptr:RtMidiOutPtr):Void;
     @:native("rtmidi_get_port_count")
@@ -61,6 +68,22 @@ class MidiOut
         output = RtMidiOut.create();
         Gc.setFinalizer(this, cpp.Function.fromStaticFunction(onDestruct));
         checkError();
+    }
+
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        var len = RtMidiOut.getCompiledApi(null, 0);
+        var apisList:RawPointer<RtMidiApi> = untyped __cpp__('new RtMidiApi[{0}]', len);
+        RtMidiOut.getCompiledApi(apisList, len);
+        for (i in 0...len) {
+            var api:Int = untyped __cpp__('(int)apisList[i]');
+            apis.push(Api.createByIndex(api));
+        }
+        untyped __cpp__('delete[] apisList');
+
+        return apis;
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>

@@ -27,6 +27,11 @@ class MidiOut
         }
     }
 
+    public function getApis():Array<Api>
+    {
+        return [grig.midi.Api.Browser];
+    }
+
     public function getPorts():Surprise<Array<String>, Error>
     {
         if (midiAccessFuture == null) return Future.sync(Success(ports));

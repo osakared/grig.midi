@@ -8,14 +8,6 @@ import tink.core.Outcome;
 
 using haxe.EnumTools;
 
-@:pythonImport('rtmidi')
-@:native('rtmidi')
-extern class RtMidi
-{
-    @:native("get_compiled_api")
-    static public function get_compiled_api():Array<Int>;
-}
-
 @:pythonImport('rtmidi', 'MidiIn')
 @:native('MidiIn')
 extern class NativeMidiIn

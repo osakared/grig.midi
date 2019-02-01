@@ -25,6 +25,7 @@ class Main
     static function main()
     {
         var midiOut = new MidiOut();
+        trace(midiOut.getApis());
         midiOut.getPorts().handle(function(outcome) {
             switch outcome {
                 case Success(ports):
