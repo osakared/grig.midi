@@ -17,12 +17,19 @@ import tink.core.Outcome;
 @:include('./rtmidi/rtmidi_c.h')
 
 typedef RtMidiInPtr = Pointer<RtMidiWrapper>;
-typedef RtMidiCallback = cpp.Callable<(delta:cpp.Float64, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)->Void>;
+typedef RtMidiCallback = cpp.Callable<(delta:cpp.Float64, message:cpp.RawConstPointer<UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)->Void>;
+
+@:native('RtMidiApi')
+extern class RtMidiApi
+{
+}
 
 extern class RtMidiIn
 {
     @:native("rtmidi_in_create_default")
     static public function create():RtMidiInPtr;
+    @:native("rtmidi_get_compiled_api")
+    static public function getCompiledApi(apis:RawPointer<RtMidiApi>, apisSize:Int):Int;
     @:native("rtmidi_in_free")
     static public function destroy(rtmidiptr:RtMidiInPtr):Void; // okay, but when do I call this?
     @:native("rtmidi_get_port_count")
@@ -54,7 +61,7 @@ class MidiIn
         throw new Error(InternalError, message.toString());
     }
 
-    private static function handleMidiEvent(delta:cpp.Float64, message:cpp.RawConstPointer<cpp.UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)
+    private static function handleMidiEvent(delta:cpp.Float64, message:cpp.RawConstPointer<UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)
     {
         var constMessage = ConstPointer.fromRaw(message);
         var messageArray = new Array<Int>();
@@ -77,6 +84,22 @@ class MidiIn
         checkError();
         RtMidiIn.setCallback(input, cpp.Function.fromStaticFunction(handleMidiEvent), untyped __cpp__('(void*)this'));
         checkError();
+    }
+
+    public function getApis():Array<Api>
+    {
+        var apis = new Array<Api>();
+
+        var len = RtMidiIn.getCompiledApi(null, 0);
+        var apisList:RawPointer<RtMidiApi> = untyped __cpp__('new RtMidiApi[{0}]', len);
+        RtMidiIn.getCompiledApi(apisList, len);
+        for (i in 0...len) {
+            var api:Int = untyped __cpp__('(int)apisList[i]');
+            apis.push(Api.createByIndex(api));
+        }
+        untyped __cpp__('delete[] apisList');
+
+        return apis;
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
