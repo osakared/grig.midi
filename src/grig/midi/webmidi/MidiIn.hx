@@ -21,8 +21,12 @@ class MidiIn
         }
     }
 
-    public function new()
+    public function new(api:grig.midi.Api = grig.midi.Api.Unspecified)
     {
+        if (api != grig.midi.Api.Unspecified && api != grig.midi.Api.Browser) {
+            throw new Error(InternalError, 'In webmidi, only "Browser" api supported');
+        }
+
         ports = new Array<String>();
 
         var nagivator:Navigator = Browser.window.navigator;
@@ -37,7 +41,7 @@ class MidiIn
         }
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         return [grig.midi.Api.Browser];
     }

@@ -1,5 +1,6 @@
 package grig.midi.rtmidi; #if python
 
+import grig.midi.Api;
 import python.Exceptions;
 import python.Tuple;
 import tink.core.Error;
@@ -12,7 +13,7 @@ using haxe.EnumTools;
 @:native('MidiIn')
 extern class NativeMidiIn
 {
-    public function new();
+    public function new(api:Int);
     public function get_ports():Array<String>;
     public function open_port(portNumber:Int, portName:String):Void;
     public function open_virtual_port(portName:String):Void;
@@ -34,10 +35,10 @@ class MidiIn
         }
     }
  
-    public function new()
+    public function new(api:Api = Api.Unspecified)
     {
         try {
-            midiIn = new NativeMidiIn();
+            midiIn = new NativeMidiIn(api.getIndex());
             midiIn.set_callback(handleMidiEvent);
         }
         catch (exception:BaseException) {
@@ -45,7 +46,7 @@ class MidiIn
         }
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         var apis = new Array<Api>();
 

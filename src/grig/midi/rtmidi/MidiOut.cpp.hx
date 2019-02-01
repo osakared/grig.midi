@@ -26,8 +26,8 @@ extern class RtMidiApi
 
 extern class RtMidiOut
 {
-    @:native("rtmidi_out_create_default")
-    static public function create():RtMidiOutPtr;
+    @:native("rtmidi_out_create")
+    static public function create(api:RtMidiApi, clientName:ConstPointer<Char>):RtMidiOutPtr;
     @:native("rtmidi_get_compiled_api")
     static public function getCompiledApi(apis:RawPointer<RtMidiApi>, apisSize:Int):Int;
     @:native("rtmidi_out_free")
@@ -63,19 +63,21 @@ class MidiOut
         RtMidiOut.destroy(midiOut.output);
     }
 
-    public function new()
+    public function new(api:Api = Api.Unspecified)
     {
-        output = RtMidiOut.create();
+        var apiIndex = api.getIndex();
+        var apiEnum = untyped __cpp__('(RtMidiApi)apiIndex');
+        output = RtMidiOut.create(apiEnum, StdString.ofString('grig RtMidi client').c_str());
         Gc.setFinalizer(this, cpp.Function.fromStaticFunction(onDestruct));
         checkError();
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         var apis = new Array<Api>();
 
         var len = RtMidiOut.getCompiledApi(null, 0);
-        var apisList:RawPointer<RtMidiApi> = untyped __cpp__('new RtMidiApi[{0}]', len);
+        var apisList:RawPointer<RtMidiApi> = untyped __cpp__('new RtMidiApi[len]');
         RtMidiOut.getCompiledApi(apisList, len);
         for (i in 0...len) {
             var api:Int = untyped __cpp__('(int)apisList[i]');

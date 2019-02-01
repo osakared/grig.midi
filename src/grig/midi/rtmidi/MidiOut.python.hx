@@ -9,7 +9,7 @@ import tink.core.Outcome;
 @:native('MidiOut')
 extern class NativeMidiOut
 {
-    public function new();
+    public function new(api:Int);
     public function get_ports():Array<String>;
     public function open_port(portNumber:Int, portName:String):Void;
     public function open_virtual_port(portName:String):Void;
@@ -22,17 +22,17 @@ class MidiOut
 {
     private var midiOut:NativeMidiOut;
 
-    public function new()
+    public function new(api:Api = Api.Unspecified)
     {
         try {
-            midiOut = new NativeMidiOut();
+            midiOut = new NativeMidiOut(api.getIndex());
         }
         catch (exception:BaseException) {
             throw new Error(InternalError, 'Failure while initializing MidiOut');
         }
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         var apis = new Array<Api>();
 

@@ -10,8 +10,8 @@ typedef MidiOut = grig.midi.webmidi.MidiOut;
 
 extern class MidiOut
 {
-    public function new();
-    public function getApis():Array<grig.midi.Api>;
+    public function new(api:grig.midi.Api);
+    public static function getApis():Array<grig.midi.Api>;
     public function getPorts():Surprise<Array<String>, tink.core.Error>;
     public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, tink.core.Error>;
     public function openVirtualPort(portName:String):Surprise<MidiOut, tink.core.Error>;

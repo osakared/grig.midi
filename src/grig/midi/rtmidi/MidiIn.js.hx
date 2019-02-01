@@ -29,7 +29,7 @@ class MidiIn
         if (callback != null) callback(MidiMessage.fromArray(message), delta);
     }
 
-    public function new()
+    public function new(api:Api = Api.Unspecified)
     {
         try {
             input = new NativeMidiIn();
@@ -40,7 +40,7 @@ class MidiIn
         }
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         var apis = new Array<Api>();
 

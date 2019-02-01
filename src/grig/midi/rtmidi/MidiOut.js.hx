@@ -21,7 +21,7 @@ class MidiOut
 {
     private var output:NativeMidiOut;
 
-    public function new()
+    public function new(api:grig.midi.Api)
     {
         try {
             output = new NativeMidiOut();
@@ -31,7 +31,7 @@ class MidiOut
         }
     }
 
-    public function getApis():Array<Api>
+    public static function getApis():Array<Api>
     {
         var apis = new Array<Api>();
 
