@@ -1,6 +1,7 @@
 package grig.midi;
 
 import haxe.io.Input;
+import haxe.io.Output;
 
 class MidiFile
 {
@@ -39,5 +40,19 @@ class MidiFile
         }
 
         return midiFile;
+    }
+
+    public function write(output:Output):Void
+    {
+        output.bigEndian = true;
+        output.writeInt32(MIDI_FILE_HEADER_TAG);
+        output.writeInt32(MIDI_FILE_HEADER_SIZE);
+        output.writeUInt16(format);
+        output.writeUInt16(tracks.length);
+        output.writeUInt16(timeDivision);
+
+        for (track in tracks) {
+            track.write(output);
+        }
     }
 }

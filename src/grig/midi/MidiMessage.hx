@@ -8,14 +8,26 @@ enum MessageType {
     ControlChange;
     ProgramChange;
     Pitch;
+    ChannelMode;
+    SysEx;
+    TimeCode;
+    SongPosition;
+    SongSelect;
+    TuneRequest;
+    TimeClock;
+    Start;
+    Continue;
+    Stop;
+    KeepAlive;
+    Reset;
     Unknown;
 }
 
 class MidiMessage
 {
-    private var bytes:Int;
-
+    public var bytes(default, null):Int;
     public var messageType(get, never):MessageType;
+    public var size(get, never):Int;
     public var channel(get, never):Int;
     public var byte1(get, never):Int;
     public var byte2(get, never):Int;
@@ -63,6 +75,33 @@ class MidiMessage
             case 13: Pressure;
             case 14: Pitch;
             default: Unknown;
+        }
+    }
+
+    private function get_size():Int
+    {
+        return switch(messageType) {
+            case NoteOn: 3;
+            case NoteOff: 3;
+            case PolyPressure: 3;
+            case ControlChange: 3;
+            case ProgramChange: 2;
+            case Pressure: 2;
+            case Pitch: 3;
+            case ChannelMode: 3;
+            case TimeCode: 2;
+            case SongPosition: 3;
+            case SongSelect: 2;
+            case TuneRequest: 1;
+            case TimeClock: 1;
+            case Start: 1;
+            case Continue: 1;
+            case Stop: 1;
+            case KeepAlive: 1;
+            case Reset: 1;
+            default: { // includes SysEx, which shouldn't be deserialized as a MidiMessage anyway, and undefineds
+                throw "Unknown midi message type";
+            }
         }
     }
 

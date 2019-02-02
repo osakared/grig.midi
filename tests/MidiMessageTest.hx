@@ -4,8 +4,8 @@ import grig.midi.MidiMessage;
 import tink.unit.Assert.*;
 
 @:asserts
-class MidiMessageTest {
-
+class MidiMessageTest
+{
     private var midiMessage:MidiMessage;
 
     public function new()

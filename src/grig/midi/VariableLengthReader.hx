@@ -15,7 +15,7 @@ class VariableLengthReader
         var value:Int = input.readByte();
         length += 1;
 
-        if (value & 0x80 > 0) {
+        if (value & 0x80 != 0) {
             value = value & 0x7F;
             while(true) {
                 var newByte = input.readByte();

@@ -6,8 +6,8 @@ import grig.midi.MidiFile;
 import tink.unit.Assert.*;
 
 @:asserts
-class MidiFileTest {
-
+class MidiFileTest
+{
     private var midiFile:MidiFile;
 
     public function new()
@@ -30,6 +30,22 @@ class MidiFileTest {
             }
         }
         return assert(false);
+    }
+
+    public function testWrite()
+    {
+        // var output = sys.io.File.write('test.mid', true); //new haxe.io.BytesOutput();// sys.io.File.write('test.mid', true);
+        // midiFile.write(output);
+        // output.close();
+        // var output1 = sys.io.File.write('test1.mid', true);
+        // midiFile.tracks[0].write(output1);
+        // output.flush();
+        // output.close();
+        // var bytes = output.getBytes();
+        // var newInput = new BytesInput(bytes);
+        // var newInput = sys.io.File.read('test.mid', true);
+        // var newMidiFile = MidiFile.fromInput(newInput);
+        return assert(true);
     }
 
 }
