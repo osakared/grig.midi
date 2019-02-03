@@ -49,4 +49,20 @@ class MidiFileTest
         return assert(false);
     }
 
+    public function testFormat0()
+    {
+        var bytes = Resource.getBytes('tests/heart_of_glass.mid');
+        var input = new BytesInput(bytes);
+        midiFile = MidiFile.fromInput(input);
+        return assert(midiFile.tracks.length == 1);
+    }
+
+    public function testFormat2()
+    {
+        var bytes = Resource.getBytes('tests/sw.mid');
+        var input = new BytesInput(bytes);
+        midiFile = MidiFile.fromInput(input);
+        return assert(midiFile.tracks.length == 11);
+    }
+
 }

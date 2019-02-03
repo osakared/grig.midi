@@ -4,3 +4,5 @@
 -dce full
 -lib tink_unittest
 -resource tests/bohemian_rhapsody.mid
+-resource tests/heart_of_glass.mid
+-resource tests/sw.mid
