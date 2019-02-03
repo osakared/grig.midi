@@ -54,15 +54,15 @@ class MidiFileTest
         var bytes = Resource.getBytes('tests/heart_of_glass.mid');
         var input = new BytesInput(bytes);
         midiFile = MidiFile.fromInput(input);
-        return assert(midiFile.tracks.length == 1);
+        return assert(midiFile.tracks.length == 1 && midiFile.format == 0);
     }
 
     public function testFormat2()
     {
-        var bytes = Resource.getBytes('tests/sw.mid');
+        var bytes = Resource.getBytes('tests/impmarch.mid');
         var input = new BytesInput(bytes);
         midiFile = MidiFile.fromInput(input);
-        return assert(midiFile.tracks.length == 11);
+        return assert(midiFile.tracks.length == 1 && midiFile.format == 2);
     }
 
 }
