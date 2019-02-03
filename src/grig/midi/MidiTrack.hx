@@ -1,6 +1,5 @@
 package grig.midi;
 
-import tink.CoreApi.Pair;
 import haxe.io.Input;
 import haxe.io.Output;
 
@@ -20,13 +19,13 @@ class MidiTrack
 
     public static function fromInput(input:Input, parent:MidiFile)
     {
-        if (input.readInt32() != MIDI_TRACK_HEADER_TAG) {
+        var headerTag = input.readInt32();
+        if (headerTag != MIDI_TRACK_HEADER_TAG) {
+            trace(StringTools.hex(headerTag, 8));
             throw "Not a valid midi track";
         }
 
-        trace('fromInput');
         var size = input.readInt32(); 
-        trace(size);
         var absoluteTime:Int = 0;
         var midiTrack = new MidiTrack();
         var lastFlag:Int = 0;
@@ -99,19 +98,20 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             size += output.writeVariableBytes(midiEvent.absoluteTime - previousTime, null, true);
             previousTime = midiEvent.absoluteTime;
-            size += midiEvent.midiMessage.size;
+            size += 3;//midiEvent.midiMessage.size;
         }
-        trace('write');
-        trace(size);
         output.writeInt32(size);
 
         previousTime = 0;
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);
             previousTime = midiEvent.absoluteTime;
-            for (i in 0...midiEvent.midiMessage.size) {
-                output.writeByte(midiEvent.midiMessage.bytes << (8 * i) & 0xff);
+            for (i in 3...0) {
+                var shiftAmount = 8 * (i - 1);
+                output.writeByte((midiEvent.midiMessage.bytes & (0xff << shiftAmount)) >> shiftAmount);
             }
         }
+
+        output.flush();
     }
 }

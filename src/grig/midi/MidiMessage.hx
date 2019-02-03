@@ -8,7 +8,6 @@ enum MessageType {
     ControlChange;
     ProgramChange;
     Pitch;
-    ChannelMode;
     SysEx;
     TimeCode;
     SongPosition;
@@ -64,9 +63,9 @@ class MidiMessage
         return (bytes & 0xf0000) >> 0x10;
     }
 
-    private function get_messageType():MessageType
+    public static function messageTypeForByte(byte:Int):MessageType
     {
-        return switch ((bytes & 0xf00000) >> 0x14) {
+        return switch (byte) {
             case 8:  NoteOff;
             case 9:  NoteOn;
             case 10: PolyPressure;
@@ -74,11 +73,17 @@ class MidiMessage
             case 12: ProgramChange;
             case 13: Pressure;
             case 14: Pitch;
+            case 15: SysEx;
             default: Unknown;
         }
     }
 
-    private function get_size():Int
+    private function get_messageType():MessageType
+    {
+        return messageTypeForByte((bytes & 0xf00000) >> 0x14);
+    }
+
+    public static function sizeForMessageType(messageType:MessageType):Int
     {
         return switch(messageType) {
             case NoteOn: 3;
@@ -88,7 +93,6 @@ class MidiMessage
             case ProgramChange: 2;
             case Pressure: 2;
             case Pitch: 3;
-            case ChannelMode: 3;
             case TimeCode: 2;
             case SongPosition: 3;
             case SongSelect: 2;
@@ -103,6 +107,11 @@ class MidiMessage
                 throw "Unknown midi message type";
             }
         }
+    }
+
+    private function get_size():Int
+    {
+        return sizeForMessageType(messageType);
     }
 
     private function get_byte1():Int

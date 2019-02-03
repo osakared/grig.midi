@@ -34,18 +34,19 @@ class MidiFileTest
 
     public function testWrite()
     {
-        // var output = sys.io.File.write('test.mid', true); //new haxe.io.BytesOutput();// sys.io.File.write('test.mid', true);
-        // midiFile.write(output);
-        // output.close();
-        // var output1 = sys.io.File.write('test1.mid', true);
-        // midiFile.tracks[0].write(output1);
-        // output.flush();
-        // output.close();
-        // var bytes = output.getBytes();
-        // var newInput = new BytesInput(bytes);
-        // var newInput = sys.io.File.read('test.mid', true);
-        // var newMidiFile = MidiFile.fromInput(newInput);
-        return assert(true);
+        var output = new haxe.io.BytesOutput();
+        midiFile.write(output);
+        output.close();
+
+        var bytes = output.getBytes();
+        var newInput = new BytesInput(bytes);
+        var newMidiFile = MidiFile.fromInput(newInput);
+        for (midiEvent in newMidiFile.tracks[1].midiEvents) {
+            if (midiEvent.midiMessage.messageType == NoteOn) {
+                return assert(midiEvent.midiMessage.byte2 == 0x3E);
+            }
+        }
+        return assert(false);
     }
 
 }

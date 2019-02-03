@@ -14,9 +14,10 @@ class VariableLengthWriter
         while(true) {
             byte = (value >> (7 * shiftAmount)) & 0x7f;
             shiftAmount -= 1;
-            if (byte == 0 && !started && shiftAmount > 0) continue;
+            if (byte == 0 && !started && shiftAmount >= 0) continue;
             started = true;
 
+            lengthWritten += 1;
             var isFinalByte:Bool = false;
             if (lengthToWrite != null) {
                 if (lengthWritten > lengthToWrite) {
@@ -36,7 +37,6 @@ class VariableLengthWriter
             if (!dryRun) {
                 output.writeByte(byte);
             }
-            lengthWritten += 1;
             if (isFinalByte) {
                 break;
             }

@@ -15,17 +15,22 @@ class VariableWriterTest
 
     public function testWriteAndRead()
     {
-        var nums = [12, 567, 1028, 0];
-        var outputNums = [];
-        for (num in nums) {
+        var numsWritten = [12, 567, 1028, 0];
+        var numsRead = new Array<Int>();
+        var lengthsWritten = new Array<Int>();
+        var lengthsRead = new Array<Int>();
+        for (num in numsWritten) {
             var output = new BytesOutput();
-            output.writeVariableBytes(num);
+            var written = output.writeVariableBytes(num);
+            lengthsWritten.push(written);
             output.close();
             var input = new BytesInput(output.getBytes());
             var variableBytes = input.readVariableBytes();
-            outputNums.push(variableBytes.value);
+            numsRead.push(variableBytes.value);
+            lengthsRead.push(variableBytes.length);
         }
-        return [for (i in 0...nums.length) assert(nums[i] == outputNums[i])];
+        // return [for (i in 0...numsWritten.length) assert(numsWritten[i] == numsRead[i])];
+        return [for (i in 0...lengthsWritten.length) assert(lengthsWritten[i] == lengthsRead[i])];
     }
 
 }
