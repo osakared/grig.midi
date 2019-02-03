@@ -98,7 +98,7 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             size += output.writeVariableBytes(midiEvent.absoluteTime - previousTime, null, true);
             previousTime = midiEvent.absoluteTime;
-            size += 3;//midiEvent.midiMessage.size;
+            size += 3;
         }
         output.writeInt32(size);
 
@@ -106,8 +106,8 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);
             previousTime = midiEvent.absoluteTime;
-            for (i in 3...0) {
-                var shiftAmount = 8 * (i - 1);
+            for (i in 0...3) {
+                var shiftAmount = 8 * (2 - i);
                 output.writeByte((midiEvent.midiMessage.bytes & (0xff << shiftAmount)) >> shiftAmount);
             }
         }
