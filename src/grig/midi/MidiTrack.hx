@@ -40,20 +40,24 @@ class MidiTrack
         thirtySecondNotesPerTick = 8;
         midiEvents = new Array<MidiEvent>();
         textEvents = new Array<TextEvent>();
+
+        text = '';
+        copyright = '';
+        name = '';
+        instrument = '';
     }
 
     public static function fromInput(input:Input, parent:MidiFile)
     {
         var headerTag = input.readInt32();
         if (headerTag != MIDI_TRACK_HEADER_TAG) {
-            trace(StringTools.hex(headerTag, 8));
             throw "Not a valid midi track";
         }
 
         var size = input.readInt32(); 
         var absoluteTime:Int = 0;
         var midiTrack = new MidiTrack();
-        var lastFlag:Int = 0;
+        var lastFlag:Int = 0; // for running status
 
         while (size > 0) {
             var variableBytes = input.readVariableBytes();
@@ -107,27 +111,28 @@ class MidiTrack
 
             // Okay I think it's a message
             else {
-                var messageBytes:Int = flag << 0x10;
-                if (flag & 0x80 != 0) {
-                    messageBytes |= input.readByte() << 8;
-                    size -= 1;
-                    lastFlag = flag;
+                var messageType = MidiMessage.messageTypeForByte(flag >> 4);
+                var messageBytes:Int = 0;
+                if (messageType == Unknown) { // running status
+                    messageBytes = lastFlag << 0x10;
+                    messageType = MidiMessage.messageTypeForByte(lastFlag >> 4);
                 }
                 else {
-                    messageBytes = lastFlag << 0x10;
-                    messageBytes |= flag << 8;
+                    messageBytes = flag << 0x10;
+                    lastFlag = flag;
                 }
-                messageBytes |= input.readByte();
-                size -= 1;
+                // implement running status
+                var messageSize = MidiMessage.sizeForMessageType(messageType);
+                for (i in 1...(messageSize)) {
+                    messageBytes |= input.readByte() << (0x08 * (2 - i));
+                    size -= 1;
+                }
 
                 midiTrack.midiEvents.push(new MidiEvent(new MidiMessage(messageBytes), absoluteTime));
             }
         }
 
-        // Avoid turning just header crap into a track
-        if (midiTrack.midiEvents.length > 0) {
-            parent.tracks.push(midiTrack);
-        }
+        parent.tracks.push(midiTrack);
     }
 
     public function write(output:Output):Void
@@ -139,15 +144,21 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             size += output.writeVariableBytes(midiEvent.absoluteTime - previousTime, null, true);
             previousTime = midiEvent.absoluteTime;
-            size += 3;
+            size += midiEvent.midiMessage.size;
         }
+        size += 3 + output.writeVariableBytes(text.length, null, true) + text.length; // does this support utf8 right?
         output.writeInt32(size);
 
+        output.writeByte(0);
+        output.writeByte(0xFF);
+        output.writeByte(0x01);
+        output.writeVariableBytes(text.length);
+        output.writeString(text);
         previousTime = 0;
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);
             previousTime = midiEvent.absoluteTime;
-            for (i in 0...3) {
+            for (i in 0...midiEvent.midiMessage.size) {
                 var shiftAmount = 8 * (2 - i);
                 output.writeByte((midiEvent.midiMessage.bytes & (0xff << shiftAmount)) >> shiftAmount);
             }

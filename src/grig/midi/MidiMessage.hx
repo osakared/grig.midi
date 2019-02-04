@@ -104,7 +104,7 @@ class MidiMessage
             case KeepAlive: 1;
             case Reset: 1;
             default: { // includes SysEx, which shouldn't be deserialized as a MidiMessage anyway, and undefineds
-                throw "Unknown midi message type";
+                throw "Unknown midi message type: " + messageType;
             }
         }
     }

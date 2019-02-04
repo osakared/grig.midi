@@ -19,12 +19,12 @@ class MidiFileTest
 
     public function testNumTracks()
     {
-        return assert(midiFile.tracks.length == 13);
+        return assert(midiFile.tracks.length == 14);
     }
 
     public function testFirstBassNote()
     {
-        for (midiEvent in midiFile.tracks[1].midiEvents) {
+        for (midiEvent in midiFile.tracks[2].midiEvents) {
             if (midiEvent.midiMessage.messageType == NoteOn) {
                 return assert(midiEvent.midiMessage.byte2 == 0x3E);
             }
@@ -38,10 +38,15 @@ class MidiFileTest
         midiFile.write(output);
         output.close();
 
+        // For manual testing.. won't work on targets without full sys implementation!
+        // var fileOutput = sys.io.File.write('test.mid', true);
+        // midiFile.write(fileOutput);
+        // fileOutput.close();
+
         var bytes = output.getBytes();
         var newInput = new BytesInput(bytes);
         var newMidiFile = MidiFile.fromInput(newInput);
-        for (midiEvent in newMidiFile.tracks[1].midiEvents) {
+        for (midiEvent in newMidiFile.tracks[2].midiEvents) {
             if (midiEvent.midiMessage.messageType == NoteOn) {
                 return assert(midiEvent.midiMessage.byte2 == 0x3E);
             }
@@ -62,7 +67,7 @@ class MidiFileTest
         var bytes = Resource.getBytes('tests/impmarch.mid');
         var input = new BytesInput(bytes);
         midiFile = MidiFile.fromInput(input);
-        return assert(midiFile.tracks.length == 1 && midiFile.format == 2);
+        return assert(midiFile.tracks.length == 2 && midiFile.format == 2);
     }
 
 }
