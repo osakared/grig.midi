@@ -2,6 +2,7 @@ package grig.midi;
 
 import haxe.io.Input;
 import haxe.io.Output;
+import tink.core.Pair;
 
 using grig.midi.VariableLengthReader;
 using grig.midi.VariableLengthWriter;
@@ -11,10 +12,34 @@ class MidiTrack
     private static inline var MIDI_TRACK_HEADER_TAG:UInt = 0x4D54726B; // MTrk
     
     public var midiEvents(default, null):Array<MidiEvent>; // should be sorted by time
+    public var textEvents(default, null):Array<TextEvent>;
+    
+    public var sequence(default, null):Null<Int>;
+    public var text(default, null):String;
+    public var copyright(default, null):String;
+    public var name(default, null):String;
+    public var instrument(default, null):String;
+    public var endOfTrack(default, null):Int; // in ticks
+    public var microsecondsPerQuarterNote(default, null):Int;
+    public var tempo(get, never):Int;
+    public var timeSignature(default, null):Pair<Int, Int>;
+    public var midiClocksPerClick(default, null):Int;
+    public var thirtySecondNotesPerTick(default, null):Int;
+    public var keySignature(default, null):Pair<Int, Bool>; // number of sharps/flats, true if minor
+
+    private function get_tempo():Int
+    {
+        return Std.int(1000000 / microsecondsPerQuarterNote) * 60;
+    }
 
     private function new()
     {
+        microsecondsPerQuarterNote = 500000; // 120bpm
+        timeSignature = new Pair<Int, Int>(4, 4);
+        midiClocksPerClick = 24;
+        thirtySecondNotesPerTick = 8;
         midiEvents = new Array<MidiEvent>();
+        textEvents = new Array<TextEvent>();
     }
 
     public static function fromInput(input:Input, parent:MidiFile)
@@ -48,19 +73,35 @@ class MidiTrack
                 }
             }
 
-            // Meta, also ignoring for now
             else if (flag == 0xFF) {
                 var type = input.readByte();
-                size -= 1;
-                if (type == 0x2F) {
-                    input.readByte();
-                    size -= 1;
-                }
-                else {
-                    variableBytes = input.readVariableBytes();
-                    size -= variableBytes.length;
-                    input.read(variableBytes.value);
-                    size -= variableBytes.value;
+                var metaLength = input.readVariableBytes();
+                size = size - 1 - metaLength.length - metaLength.value;
+                switch (type) {
+                    case 0x00: midiTrack.sequence = input.readUInt16();
+                    case 0x01: midiTrack.text = input.readString(metaLength.value);
+                    case 0x02: midiTrack.copyright = input.readString(metaLength.value);
+                    case 0x03: midiTrack.name = input.readString(metaLength.value);
+                    case 0x04: midiTrack.instrument = input.readString(metaLength.value);
+                    case 0x05: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Lyric));
+                    case 0x06: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Marker));
+                    case 0x07: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, CuePoint));
+                    case 0x2F: midiTrack.endOfTrack = absoluteTime;
+                    case 0x51: midiTrack.microsecondsPerQuarterNote = input.readUInt24();
+                    case 0x58: {
+                        var numerator = input.readByte();
+                        var denominator = input.readByte();
+                        denominator = Math.ceil(Math.pow(2, denominator));
+                        midiTrack.timeSignature = new Pair<Int, Int>(numerator, denominator);
+                        midiTrack.midiClocksPerClick = input.readByte();
+                        midiTrack.thirtySecondNotesPerTick = input.readByte();
+                    }
+                    case 0x59: {
+                        var numSharps = input.readByte();
+                        var isMinor:Bool = input.readByte() == 1;
+                        midiTrack.keySignature = new Pair<Int, Bool>(numSharps, isMinor);
+                    }
+                    default: input.readString(metaLength.value); // left out midi channel prefix, smtpe start, sequencer-specific meta event
                 }
             }
 
