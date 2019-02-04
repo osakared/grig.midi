@@ -1,7 +1,7 @@
 package;
 
-using grig.midi.VariableLengthReader;
-using grig.midi.VariableLengthWriter;
+using grig.midi.file.VariableLengthReader;
+using grig.midi.file.VariableLengthWriter;
 import haxe.io.BytesOutput;
 import haxe.io.BytesInput;
 import tink.unit.Assert.*;

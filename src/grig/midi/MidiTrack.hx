@@ -1,40 +1,26 @@
 package grig.midi;
 
-import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
 import tink.core.Pair;
 
-using grig.midi.VariableLengthReader;
-using grig.midi.VariableLengthWriter;
+using grig.midi.file.VariableLengthReader;
+using grig.midi.file.VariableLengthWriter;
 
 class MidiTrack
 {
     private static inline var MIDI_TRACK_HEADER_TAG:UInt = 0x4D54726B; // MTrk
     
-    public var midiEvents(default, null):Array<MidiFileEvent>; // should be sorted by time
+    public var midiEvents(default, null):Array<grig.midi.file.event.MidiFileEvent>; // should be sorted by time
     
-    public var sequence(default, null):Null<Int>;
-    public var text(default, null):String;
-    public var copyright(default, null):String;
-    public var name(default, null):String;
-    public var instrument(default, null):String;
-    public var endOfTrack(default, null):Int; // in ticks
     public var timeSignature(default, null):Pair<Int, Int>;
     public var midiClocksPerClick(default, null):Null<Int>;
     public var thirtySecondNotesPerTick(default, null):Null<Int>;
     public var keySignature(default, null):Pair<Int, Bool>; // number of sharps/flats, true if minor
 
-    public static function tempoFromMsPerQuaver(microsecondsPerQuarterNote:Int):Int
-    {
-        return Std.int(1000000 / microsecondsPerQuarterNote) * 60;
-    }
-
     private function new()
     {
-        midiEvents = new Array<MidiFileEvent>();
-
-        text = copyright = name = instrument = null;
+        midiEvents = new Array<grig.midi.file.event.MidiFileEvent>();
     }
 
     public static function fromInput(input:Input, parent:MidiFile)
@@ -72,16 +58,12 @@ class MidiTrack
                 var metaLength = input.readVariableBytes();
                 size = size - 1 - metaLength.length - metaLength.value;
                 switch (type) {
-                    case 0x00: midiTrack.sequence = input.readUInt16();
-                    case 0x01: midiTrack.text = input.readString(metaLength.value);
-                    case 0x02: midiTrack.copyright = input.readString(metaLength.value);
-                    case 0x03: midiTrack.name = input.readString(metaLength.value);
-                    case 0x04: midiTrack.instrument = input.readString(metaLength.value);
-                    case 0x05: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Lyric));
-                    case 0x06: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Marker));
-                    case 0x07: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, CuePoint));
-                    case 0x2F: midiTrack.endOfTrack = absoluteTime;
-                    // case 0x51: midiTrack.microsecondsPerQuarterNote = input.readUInt24();
+                    case 0x00: midiTrack.midiEvents.push(new grig.midi.file.event.SequenceEvent(input.readUInt16(), absoluteTime));
+                    case 0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 : {
+                        midiTrack.midiEvents.push(new grig.midi.file.event.TextEvent(input.readString(metaLength.value), absoluteTime, type));
+                    }
+                    case 0x2F: midiTrack.midiEvents.push(new grig.midi.file.event.EndTrackEvent(absoluteTime));
+                    case 0x51: midiTrack.midiEvents.push(new grig.midi.file.event.TempoChangeEvent(input.readUInt24(), absoluteTime));
                     case 0x58: {
                         var numerator = input.readByte();
                         var denominator = input.readByte();
@@ -118,28 +100,11 @@ class MidiTrack
                     size -= 1;
                 }
 
-                midiTrack.midiEvents.push(new MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
+                midiTrack.midiEvents.push(new grig.midi.file.event.MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
             }
         }
 
         parent.tracks.push(midiTrack);
-    }
-
-    private function writeMetaText(output:Output, type:Int, text:String)
-    {
-        output.writeByte(0);
-        output.writeByte(0xFF);
-        output.writeByte(type);
-        var bytes = Bytes.ofString(text, UTF8);
-        output.writeVariableBytes(bytes.length);
-        output.writeBytes(bytes, 0, bytes.length);
-    }
-
-    private function metaTextSize(output:Output, text:String):Int
-    {
-        var bytes = Bytes.ofString(text, UTF8);
-        var variableBytes = output.writeVariableBytes(bytes.length, null, true);
-        return 3 + variableBytes + bytes.length;
     }
 
     public function write(output:Output):Void
@@ -153,17 +118,8 @@ class MidiTrack
             previousTime = midiEvent.absoluteTime;
             size += midiEvent.write(output, true);
         }
-        if (text != null) size += metaTextSize(output, text);
-        if (copyright != null) size += metaTextSize(output, copyright);
-        if (name != null) size += metaTextSize(output, name);
-        if (instrument != null) size += metaTextSize(output, instrument);
-        // trace(size);
         output.writeInt32(size);
 
-        if (text != null) writeMetaText(output, 0x01, text);
-        if (copyright != null) writeMetaText(output, 0x02, copyright);
-        if (name != null) writeMetaText(output, 0x03, name);
-        if (instrument != null) writeMetaText(output, 0x04, instrument);
         previousTime = 0;
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);

@@ -1,4 +1,4 @@
-package grig.midi;
+package grig.midi.file;
 
 import haxe.io.Input;
 

@@ -26,7 +26,7 @@ class MidiFileTest
     {
         for (midiEvent in midiFile.tracks[2].midiEvents) {
             try {
-                var messageEvent = cast(midiEvent, grig.midi.MidiMessageEvent);
+                var messageEvent = cast(midiEvent, grig.midi.file.event.MidiMessageEvent);
                 if (messageEvent.midiMessage.messageType == NoteOn) {
                     return assert(messageEvent.midiMessage.byte2 == 0x3E);
                 }
@@ -52,7 +52,7 @@ class MidiFileTest
         var newMidiFile = MidiFile.fromInput(newInput);
         for (midiEvent in newMidiFile.tracks[2].midiEvents) {
             try {
-                var messageEvent = cast(midiEvent, grig.midi.MidiMessageEvent);
+                var messageEvent = cast(midiEvent, grig.midi.file.event.MidiMessageEvent);
                 if (messageEvent.midiMessage.messageType == NoteOn) {
                     return assert(messageEvent.midiMessage.byte2 == 0x3E);
                 }
