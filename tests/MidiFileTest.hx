@@ -25,9 +25,13 @@ class MidiFileTest
     public function testFirstBassNote()
     {
         for (midiEvent in midiFile.tracks[2].midiEvents) {
-            if (midiEvent.midiMessage.messageType == NoteOn) {
-                return assert(midiEvent.midiMessage.byte2 == 0x3E);
+            try {
+                var messageEvent = cast(midiEvent, grig.midi.MidiMessageEvent);
+                if (messageEvent.midiMessage.messageType == NoteOn) {
+                    return assert(messageEvent.midiMessage.byte2 == 0x3E);
+                }
             }
+            catch(e:Dynamic) {}
         }
         return assert(false);
     }
@@ -38,18 +42,22 @@ class MidiFileTest
         midiFile.write(output);
         output.close();
 
-        // // For manual testing.. won't work on targets without full sys implementation!
-        // var fileOutput = sys.io.File.write('test.mid', true);
-        // midiFile.write(fileOutput);
-        // fileOutput.close();
+        // For manual testing.. won't work on targets without full sys implementation!
+        var fileOutput = sys.io.File.write('test.mid', true);
+        midiFile.write(fileOutput);
+        fileOutput.close();
 
         var bytes = output.getBytes();
         var newInput = new BytesInput(bytes);
         var newMidiFile = MidiFile.fromInput(newInput);
         for (midiEvent in newMidiFile.tracks[2].midiEvents) {
-            if (midiEvent.midiMessage.messageType == NoteOn) {
-                return assert(midiEvent.midiMessage.byte2 == 0x3E);
+            try {
+                var messageEvent = cast(midiEvent, grig.midi.MidiMessageEvent);
+                if (messageEvent.midiMessage.messageType == NoteOn) {
+                    return assert(messageEvent.midiMessage.byte2 == 0x3E);
+                }
             }
+            catch(e:Dynamic) {}
         }
         return assert(false);
     }

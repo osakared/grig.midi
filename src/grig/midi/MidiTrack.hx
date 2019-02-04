@@ -12,8 +12,7 @@ class MidiTrack
 {
     private static inline var MIDI_TRACK_HEADER_TAG:UInt = 0x4D54726B; // MTrk
     
-    public var midiEvents(default, null):Array<MidiEvent>; // should be sorted by time
-    public var textEvents(default, null):Array<TextEvent>;
+    public var midiEvents(default, null):Array<MidiFileEvent>; // should be sorted by time
     
     public var sequence(default, null):Null<Int>;
     public var text(default, null):String;
@@ -21,22 +20,19 @@ class MidiTrack
     public var name(default, null):String;
     public var instrument(default, null):String;
     public var endOfTrack(default, null):Int; // in ticks
-    public var microsecondsPerQuarterNote(default, null):Null<Int>;
-    public var tempo(get, never):Int;
     public var timeSignature(default, null):Pair<Int, Int>;
     public var midiClocksPerClick(default, null):Null<Int>;
     public var thirtySecondNotesPerTick(default, null):Null<Int>;
     public var keySignature(default, null):Pair<Int, Bool>; // number of sharps/flats, true if minor
 
-    private function get_tempo():Int
+    public static function tempoFromMsPerQuaver(microsecondsPerQuarterNote:Int):Int
     {
         return Std.int(1000000 / microsecondsPerQuarterNote) * 60;
     }
 
     private function new()
     {
-        midiEvents = new Array<MidiEvent>();
-        textEvents = new Array<TextEvent>();
+        midiEvents = new Array<MidiFileEvent>();
 
         text = copyright = name = instrument = null;
     }
@@ -81,11 +77,11 @@ class MidiTrack
                     case 0x02: midiTrack.copyright = input.readString(metaLength.value);
                     case 0x03: midiTrack.name = input.readString(metaLength.value);
                     case 0x04: midiTrack.instrument = input.readString(metaLength.value);
-                    case 0x05: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Lyric));
-                    case 0x06: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Marker));
-                    case 0x07: midiTrack.textEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, CuePoint));
+                    case 0x05: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Lyric));
+                    case 0x06: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, Marker));
+                    case 0x07: midiTrack.midiEvents.push(new TextEvent(input.readString(metaLength.value), absoluteTime, CuePoint));
                     case 0x2F: midiTrack.endOfTrack = absoluteTime;
-                    case 0x51: midiTrack.microsecondsPerQuarterNote = input.readUInt24();
+                    // case 0x51: midiTrack.microsecondsPerQuarterNote = input.readUInt24();
                     case 0x58: {
                         var numerator = input.readByte();
                         var denominator = input.readByte();
@@ -122,7 +118,7 @@ class MidiTrack
                     size -= 1;
                 }
 
-                midiTrack.midiEvents.push(new MidiEvent(new MidiMessage(messageBytes), absoluteTime));
+                midiTrack.midiEvents.push(new MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
             }
         }
 
@@ -155,7 +151,7 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             size += output.writeVariableBytes(midiEvent.absoluteTime - previousTime, null, true);
             previousTime = midiEvent.absoluteTime;
-            size += midiEvent.midiMessage.size;
+            size += midiEvent.write(output, true);
         }
         if (text != null) size += metaTextSize(output, text);
         if (copyright != null) size += metaTextSize(output, copyright);
@@ -172,10 +168,7 @@ class MidiTrack
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);
             previousTime = midiEvent.absoluteTime;
-            for (i in 0...midiEvent.midiMessage.size) {
-                var shiftAmount = 8 * (2 - i);
-                output.writeByte((midiEvent.midiMessage.bytes & (0xff << shiftAmount)) >> shiftAmount);
-            }
+            midiEvent.write(output);
         }
 
         output.flush();
