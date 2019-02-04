@@ -29,8 +29,21 @@ class VariableWriterTest
             numsRead.push(variableBytes.value);
             lengthsRead.push(variableBytes.length);
         }
-        // return [for (i in 0...numsWritten.length) assert(numsWritten[i] == numsRead[i])];
-        return [for (i in 0...lengthsWritten.length) assert(lengthsWritten[i] == lengthsRead[i])];
+        return [for (i in 0...numsWritten.length) assert(numsWritten[i] == numsRead[i])];
+    }
+
+    public function testWrittenAmount()
+    {
+        var numsWritten = [12, 567, 1028, 0];
+        var lengthsWritten = new Array<Int>();
+        var lengthsShouldWritten = [1, 2, 2, 1];
+        for (num in numsWritten) {
+            var output = new BytesOutput();
+            var written = output.writeVariableBytes(num);
+            lengthsWritten.push(written);
+            output.close();
+        }
+        return [for (i in 0...lengthsWritten.length) assert(lengthsWritten[i] == lengthsShouldWritten[i])];
     }
 
 }

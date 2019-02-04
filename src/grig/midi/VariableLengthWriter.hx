@@ -10,7 +10,7 @@ class VariableLengthWriter
 
         var byte:Int = 0;
         var started:Bool = false;
-        var shiftAmount:Int = 8;
+        var shiftAmount:Int = 4; // Supporting at max 32-bit integers
         while(true) {
             byte = (value >> (7 * shiftAmount)) & 0x7f;
             shiftAmount -= 1;

@@ -1,5 +1,6 @@
 package grig.midi;
 
+import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
 import tink.core.Pair;
@@ -20,11 +21,11 @@ class MidiTrack
     public var name(default, null):String;
     public var instrument(default, null):String;
     public var endOfTrack(default, null):Int; // in ticks
-    public var microsecondsPerQuarterNote(default, null):Int;
+    public var microsecondsPerQuarterNote(default, null):Null<Int>;
     public var tempo(get, never):Int;
     public var timeSignature(default, null):Pair<Int, Int>;
-    public var midiClocksPerClick(default, null):Int;
-    public var thirtySecondNotesPerTick(default, null):Int;
+    public var midiClocksPerClick(default, null):Null<Int>;
+    public var thirtySecondNotesPerTick(default, null):Null<Int>;
     public var keySignature(default, null):Pair<Int, Bool>; // number of sharps/flats, true if minor
 
     private function get_tempo():Int
@@ -34,17 +35,10 @@ class MidiTrack
 
     private function new()
     {
-        microsecondsPerQuarterNote = 500000; // 120bpm
-        timeSignature = new Pair<Int, Int>(4, 4);
-        midiClocksPerClick = 24;
-        thirtySecondNotesPerTick = 8;
         midiEvents = new Array<MidiEvent>();
         textEvents = new Array<TextEvent>();
 
-        text = '';
-        copyright = '';
-        name = '';
-        instrument = '';
+        text = copyright = name = instrument = null;
     }
 
     public static function fromInput(input:Input, parent:MidiFile)
@@ -135,6 +129,23 @@ class MidiTrack
         parent.tracks.push(midiTrack);
     }
 
+    private function writeMetaText(output:Output, type:Int, text:String)
+    {
+        output.writeByte(0);
+        output.writeByte(0xFF);
+        output.writeByte(type);
+        var bytes = Bytes.ofString(text, UTF8);
+        output.writeVariableBytes(bytes.length);
+        output.writeBytes(bytes, 0, bytes.length);
+    }
+
+    private function metaTextSize(output:Output, text:String):Int
+    {
+        var bytes = Bytes.ofString(text, UTF8);
+        var variableBytes = output.writeVariableBytes(bytes.length, null, true);
+        return 3 + variableBytes + bytes.length;
+    }
+
     public function write(output:Output):Void
     {
         output.writeInt32(MIDI_TRACK_HEADER_TAG);
@@ -146,14 +157,17 @@ class MidiTrack
             previousTime = midiEvent.absoluteTime;
             size += midiEvent.midiMessage.size;
         }
-        size += 3 + output.writeVariableBytes(text.length, null, true) + text.length; // does this support utf8 right?
+        if (text != null) size += metaTextSize(output, text);
+        if (copyright != null) size += metaTextSize(output, copyright);
+        if (name != null) size += metaTextSize(output, name);
+        if (instrument != null) size += metaTextSize(output, instrument);
+        // trace(size);
         output.writeInt32(size);
 
-        output.writeByte(0);
-        output.writeByte(0xFF);
-        output.writeByte(0x01);
-        output.writeVariableBytes(text.length);
-        output.writeString(text);
+        if (text != null) writeMetaText(output, 0x01, text);
+        if (copyright != null) writeMetaText(output, 0x02, copyright);
+        if (name != null) writeMetaText(output, 0x03, name);
+        if (instrument != null) writeMetaText(output, 0x04, instrument);
         previousTime = 0;
         for (midiEvent in midiEvents) {
             output.writeVariableBytes(midiEvent.absoluteTime - previousTime);
