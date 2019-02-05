@@ -12,11 +12,11 @@ class MidiTrack
 {
     private static inline var MIDI_TRACK_HEADER_TAG:UInt = 0x4D54726B; // MTrk
     
-    public var midiEvents(default, null):Array<grig.midi.file.event.MidiFileEvent>; // should be sorted by time
+    public var midiEvents(default, null):Array<MidiFileEvent>; // should be sorted by time
 
     private function new()
     {
-        midiEvents = new Array<grig.midi.file.event.MidiFileEvent>();
+        midiEvents = new Array<MidiFileEvent>();
     }
 
     private static function getEventForType(type:Int, absoluteTime:Int, metaLength:Int, input:Input):MidiFileEvent
@@ -32,7 +32,7 @@ class MidiTrack
             case 0x54: return SmtpeOffsetEvent.fromInput(input, absoluteTime);
             case 0x58: return TimeSignatureEvent.fromInput(input, absoluteTime);
             case 0x59: return KeySignatureEvent.fromInput(input, absoluteTime);
-            // case 0x7F:
+            case 0x7F: return SequencerSpecificEvent.fromInput(input, metaLength, absoluteTime);
             default: throw "Invalid meta event type";
         }
 
@@ -95,7 +95,7 @@ class MidiTrack
                     size -= 1;
                 }
 
-                midiTrack.midiEvents.push(new grig.midi.file.event.MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
+                midiTrack.midiEvents.push(new MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
             }
         }
 
