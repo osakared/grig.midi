@@ -2,7 +2,8 @@ package grig.midi;
 
 import haxe.io.Input;
 import haxe.io.Output;
-import tink.core.Pair;
+
+import grig.midi.file.event.*; // I don't like to use star but in this case...
 
 using grig.midi.file.VariableLengthReader;
 using grig.midi.file.VariableLengthWriter;
@@ -16,6 +17,26 @@ class MidiTrack
     private function new()
     {
         midiEvents = new Array<grig.midi.file.event.MidiFileEvent>();
+    }
+
+    private static function getEventForType(type:Int, absoluteTime:Int, metaLength:Int, input:Input):MidiFileEvent
+    {
+        switch (type) {
+            case 0x00: return new SequenceEvent(input.readUInt16(), absoluteTime);
+            case 0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 : {
+                return new TextEvent(input.readString(metaLength), absoluteTime, type);
+            }
+            case 0x20: return new ChannelPrefixEvent(input.readByte(), absoluteTime);
+            case 0x2F: return new EndTrackEvent(absoluteTime);
+            case 0x51: return new TempoChangeEvent(input.readUInt24(), absoluteTime);
+            case 0x54: return SmtpeOffsetEvent.fromInput(input, absoluteTime);
+            case 0x58: return TimeSignatureEvent.fromInput(input, absoluteTime);
+            case 0x59: return KeySignatureEvent.fromInput(input, absoluteTime);
+            // case 0x7F:
+            default: throw "Invalid meta event type";
+        }
+
+        throw "Invalid meta event type";
     }
 
     public static function fromInput(input:Input, parent:MidiFile)
@@ -52,28 +73,7 @@ class MidiTrack
                 var type = input.readByte();
                 var metaLength = input.readVariableBytes();
                 size = size - 1 - metaLength.length - metaLength.value;
-                switch (type) {
-                    case 0x00: midiTrack.midiEvents.push(new grig.midi.file.event.SequenceEvent(input.readUInt16(), absoluteTime));
-                    case 0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 : {
-                        midiTrack.midiEvents.push(new grig.midi.file.event.TextEvent(input.readString(metaLength.value), absoluteTime, type));
-                    }
-                    case 0x20: midiTrack.midiEvents.push(new grig.midi.file.event.ChannelPrefixEvent(input.readByte(), absoluteTime));
-                    case 0x2F: midiTrack.midiEvents.push(new grig.midi.file.event.EndTrackEvent(absoluteTime));
-                    case 0x51: midiTrack.midiEvents.push(new grig.midi.file.event.TempoChangeEvent(input.readUInt24(), absoluteTime));
-                    case 0x58: {
-                        var numerator = input.readByte();
-                        var denominator = input.readByte();
-                        var midiClocksPerClick = input.readByte();
-                        var thirtySecondNotesPerTick = input.readByte();
-                        midiTrack.midiEvents.push(new grig.midi.file.event.TimeSignatureEvent(numerator, denominator, midiClocksPerClick, thirtySecondNotesPerTick, absoluteTime));
-                    }
-                    case 0x59: {
-                        var numSharps = input.readByte();
-                        var isMinor:Bool = input.readByte() == 1;
-                        midiTrack.midiEvents.push(new grig.midi.file.event.KeySignatureEvent(numSharps, isMinor, absoluteTime));
-                    }
-                    default: input.readString(metaLength.value); // left out midi channel prefix, smtpe start, sequencer-specific meta event
-                }
+                midiTrack.midiEvents.push(getEventForType(type, absoluteTime, metaLength.value, input));
             }
 
             // Okay I think it's a message

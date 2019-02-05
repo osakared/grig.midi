@@ -13,6 +13,13 @@ class KeySignatureEvent implements MidiFileEvent
         absoluteTime = _absoluteTime;
     }
 
+    public static function fromInput(input:haxe.io.Input, absoluteTime:Int)
+    {
+        var numSharps = input.readByte();
+        var isMinor:Bool = input.readByte() == 1;
+        return new KeySignatureEvent(numSharps, isMinor, absoluteTime);
+    }
+
     public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {

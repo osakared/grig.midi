@@ -23,6 +23,15 @@ class TimeSignatureEvent implements MidiFileEvent
         absoluteTime = _absoluteTime;
     }
 
+    public static function fromInput(input:haxe.io.Input, absoluteTime:Int)
+    {
+        var numerator = input.readByte();
+        var denominator = input.readByte();
+        var midiClocksPerClick = input.readByte();
+        var thirtySecondNotesPerTick = input.readByte();
+        return new TimeSignatureEvent(numerator, denominator, midiClocksPerClick, thirtySecondNotesPerTick, absoluteTime);
+    }
+
     public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
