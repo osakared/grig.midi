@@ -57,6 +57,7 @@ class MidiTrack
                     case 0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 : {
                         midiTrack.midiEvents.push(new grig.midi.file.event.TextEvent(input.readString(metaLength.value), absoluteTime, type));
                     }
+                    case 0x20: midiTrack.midiEvents.push(new grig.midi.file.event.ChannelPrefixEvent(input.readByte(), absoluteTime));
                     case 0x2F: midiTrack.midiEvents.push(new grig.midi.file.event.EndTrackEvent(absoluteTime));
                     case 0x51: midiTrack.midiEvents.push(new grig.midi.file.event.TempoChangeEvent(input.readUInt24(), absoluteTime));
                     case 0x58: {
