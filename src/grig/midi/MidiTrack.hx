@@ -12,11 +12,6 @@ class MidiTrack
     private static inline var MIDI_TRACK_HEADER_TAG:UInt = 0x4D54726B; // MTrk
     
     public var midiEvents(default, null):Array<grig.midi.file.event.MidiFileEvent>; // should be sorted by time
-    
-    public var timeSignature(default, null):Pair<Int, Int>;
-    public var midiClocksPerClick(default, null):Null<Int>;
-    public var thirtySecondNotesPerTick(default, null):Null<Int>;
-    public var keySignature(default, null):Pair<Int, Bool>; // number of sharps/flats, true if minor
 
     private function new()
     {
@@ -67,15 +62,14 @@ class MidiTrack
                     case 0x58: {
                         var numerator = input.readByte();
                         var denominator = input.readByte();
-                        denominator = Math.ceil(Math.pow(2, denominator));
-                        midiTrack.timeSignature = new Pair<Int, Int>(numerator, denominator);
-                        midiTrack.midiClocksPerClick = input.readByte();
-                        midiTrack.thirtySecondNotesPerTick = input.readByte();
+                        var midiClocksPerClick = input.readByte();
+                        var thirtySecondNotesPerTick = input.readByte();
+                        midiTrack.midiEvents.push(new grig.midi.file.event.TimeSignatureEvent(numerator, denominator, midiClocksPerClick, thirtySecondNotesPerTick, absoluteTime));
                     }
                     case 0x59: {
                         var numSharps = input.readByte();
                         var isMinor:Bool = input.readByte() == 1;
-                        midiTrack.keySignature = new Pair<Int, Bool>(numSharps, isMinor);
+                        midiTrack.midiEvents.push(new grig.midi.file.event.KeySignatureEvent(numSharps, isMinor, absoluteTime));
                     }
                     default: input.readString(metaLength.value); // left out midi channel prefix, smtpe start, sequencer-specific meta event
                 }
