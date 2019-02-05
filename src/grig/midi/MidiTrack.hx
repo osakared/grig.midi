@@ -78,11 +78,11 @@ class MidiTrack
 
             // Okay I think it's a message
             else {
-                var messageType = MidiMessage.messageTypeForByte(flag >> 4);
+                var messageType = MidiMessage.messageTypeForByte(flag);
                 var messageBytes:Int = 0;
                 if (messageType == Unknown) { // running status
                     messageBytes = lastFlag << 0x10;
-                    messageType = MidiMessage.messageTypeForByte(lastFlag >> 4);
+                    messageType = MidiMessage.messageTypeForByte(lastFlag);
                 }
                 else {
                     messageBytes = flag << 0x10;

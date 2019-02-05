@@ -42,10 +42,10 @@ class MidiFileTest
         midiFile.write(output);
         output.close();
 
-        // For manual testing.. won't work on targets without full sys implementation!
-        var fileOutput = sys.io.File.write('test.mid', true);
-        midiFile.write(fileOutput);
-        fileOutput.close();
+        // // For manual testing.. won't work on targets without full sys implementation!
+        // var fileOutput = sys.io.File.write('test.mid', true);
+        // midiFile.write(fileOutput);
+        // fileOutput.close();
 
         var bytes = output.getBytes();
         var newInput = new BytesInput(bytes);
