@@ -8,11 +8,6 @@ See the [haxe grig documentation](https://haxe-grig.gitlab.io/grig/).
 
 Stuff for working with midi data and midi files.
 
-## Todo
-
-* Writing midi files (we have reading already)
-* Install packages automatically somehow (make instructions unnecessary)
-
 ## Instructions
 
 `git submodule init && git submodule update` to get external dependencies.
