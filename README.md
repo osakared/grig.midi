@@ -10,7 +10,17 @@ Stuff for working with midi data and midi files.
 
 ## Instructions
 
-`git submodule init && git submodule update` to get external dependencies.
+To install latest version from haxelib
+
+`lix install haxelib:grig.midi`
+
+or
+
+`haxelib install grig.midi`
+
+However, note that installing from git won't work (using, e.g., `lix install gitlab:haxe-grig/grig.midi`) will not work when building with hxcpp due to missing submodule. Clone the repo and `git submodule init && git submodule update` to get external dependencies, then modify the entry under `haxe_modules` to point to the directory as directed in the lix documentation.
+
+### c++
 
 Make sure alsa-dev is installed on your system if you're on linux and building hxcpp version. Probably need it for other bindings as well.
 
