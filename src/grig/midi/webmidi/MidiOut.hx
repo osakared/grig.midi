@@ -1,5 +1,6 @@
 package grig.midi.webmidi; #if (js && !nodejs)
 
+import js.html.midi.*;
 import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
@@ -19,16 +20,16 @@ class MidiOut
         
         ports = new Array<String>();
 
-        var nagivator:Navigator = Browser.window.navigator;
-        if (untyped __js__('navigator.requestMIDIAccess != undefined')) {
-            midiAccessFuture = nagivator.requestMIDIAccess().then(function(_midiAccess:MIDIAccess) {
-                midiAccess = _midiAccess;
-                midiAccess.outputs.forEach(function(value:MIDIOutput, key:String, map) {
-                    ports.push(value.name);
-                });
-                midiAccessFuture = null;
-            });
+        if (js.Browser.navigator.requestMIDIAccess == null) {
+            throw new Error(InternalError, 'webmidi not available');
         }
+        midiAccessFuture = js.Browser.navigator.requestMIDIAccess({}).then(function(_midiAccess:MIDIAccess) {
+            midiAccess = _midiAccess;
+            midiAccess.outputs.forEach(function(value:MIDIOutput, key:String, map) {
+                ports.push(value.name);
+            });
+            midiAccessFuture = null;
+        });
     }
 
     public static function getApis():Array<Api>
@@ -62,8 +63,8 @@ class MidiOut
             var i = 0;
             midiAccess.outputs.forEach(function(value:MIDIOutput, key:String, map) {
                 if (i == portNumber) {
-                    value.open().then(function(_midiOutput:MIDIOutput) {
-                        midiOutput = _midiOutput;
+                    value.open().then(function(_midiOutput:MIDIPort) {
+                        midiOutput = cast _midiOutput;
                         _callback(Success(this));
                     });
                     i = -1;
@@ -85,7 +86,7 @@ class MidiOut
     public function closePort():Void
     {
         if (midiOutput != null) {
-            midiOutput.close().then(function(_midiOutput:MIDIOutput) {
+            midiOutput.close().then(function(_midiOutput:MIDIPort) {
                 midiOutput = null;
             });
         }
@@ -93,7 +94,7 @@ class MidiOut
 
     public function isPortOpen():Bool
     {
-        return (midiOutput != null && midiOutput.state == 'connected');
+        return (midiOutput != null && midiOutput.state == CONNECTED);
     }
 
     public function sendMessage(midiMessage:MidiMessage)
