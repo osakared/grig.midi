@@ -19,7 +19,7 @@ extern class NativeMidiIn
     public function open_virtual_port(portName:String):Void;
     public function close_port():Void;
     public function is_port_open():Bool;
-    public function set_callback(callback:(midiMessage:Tuple2<Array<Int>, Float>, data:Dynamic)->Void, data:Dynamic = Null):Void;
+    public function set_callback(callback:(midiMessage:Tuple2<Array<Int>, Float>, data:Dynamic)->Void, data:Dynamic = null):Void;
     public function cancel_callback():Void;
 }
 
