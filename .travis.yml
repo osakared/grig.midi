@@ -1,6 +1,3 @@
-sudo: required
-dist: trusty
-
 language: node_js
 node_js: 6
 
@@ -10,15 +7,15 @@ os:
   - windows
 
 install:
-  - npm install -g lix
+  - npm install
 
 script:
-  - lix download
-  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix python ; fi
-  - haxelib run travix node
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix js       ; fi
-  - #if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix java   ; fi
-  - haxelib run travix cpp
-  - #haxelib run travix cs
-  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix php    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix lua      ; fi
+  - npx lix download
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then npx haxelib run travix python ; fi
+  - npx haxelib run travix node
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npx haxelib run travix js       ; fi
+  - #if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then npx haxelib run travix java   ; fi
+  - npx haxelib run travix cpp
+  - #npx haxelib run travix cs
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then npx haxelib run travix php    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npx haxelib run travix lua      ; fi
