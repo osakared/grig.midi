@@ -1,5 +1,7 @@
 package grig.midi;
 
+import haxe.io.Bytes;
+
 enum MessageType {
     NoteOn;
     NoteOff;
@@ -56,6 +58,15 @@ class MidiMessage
         array.push(byte2);
         array.push(byte3);
         return array;
+    }
+
+    public function toBytes():Bytes
+    {
+        var bytes = Bytes.alloc(3);
+        bytes.set(0, byte1);
+        bytes.set(1, byte2);
+        bytes.set(2, byte3);
+        return bytes;
     }
 
     private function get_channel():Int
