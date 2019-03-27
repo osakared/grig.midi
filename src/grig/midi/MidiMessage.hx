@@ -26,7 +26,7 @@ enum MessageType {
 
 class MidiMessage
 {
-    public var bytes(default, null):Int;
+    public var bytes:Int;
     public var messageType(get, never):MessageType;
     public var size(get, never):Int;
     public var channel(get, never):Int;

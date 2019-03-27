@@ -54,6 +54,8 @@ class MidiIn
     private var connected:Bool = false;
     private var callback:(MidiMessage, Float)->Void;
 
+    private var midiMessage = new MidiMessage(0);
+
     private function checkError():Void
     {
         if (input.ptr.ok == true) return;
@@ -63,13 +65,14 @@ class MidiIn
 
     private static function handleMidiEvent(delta:cpp.Float64, message:cpp.RawConstPointer<UInt8>, messageSize:cpp.SizeT, userData:RawPointer<cpp.Void>)
     {
-        var constMessage = ConstPointer.fromRaw(message);
-        var messageArray = new Array<Int>();
-        for (i in 0...messageSize) {
-            messageArray.push(constMessage.at(i));
-        }
         var midiIn:MidiIn = untyped __cpp__('(MidiIn_obj*)userData');
-        if (midiIn.callback != null) midiIn.callback(MidiMessage.fromArray(messageArray), delta);
+        if (midiIn.callback == null) return;
+        var constMessage = ConstPointer.fromRaw(message);
+        midiIn.midiMessage.bytes = 0;
+        for (i in 0...messageSize) {
+            midiIn.midiMessage.bytes += constMessage.at(i) << (messageSize - (i + 1)) * 8;
+        }
+        midiIn.callback(midiIn.midiMessage, delta);
     }
 
     private static function onDestruct(midiIn:MidiIn)
