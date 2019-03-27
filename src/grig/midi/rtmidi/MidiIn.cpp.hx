@@ -52,8 +52,9 @@ class MidiIn
 {
     private var input:RtMidiInPtr;
     private var connected:Bool = false;
-    private var callback:(MidiMessage, Float)->Void;
 
+    private var m = new sys.thread.Mutex();
+    private var callback:(MidiMessage, Float)->Void;
     private var midiMessage = new MidiMessage(0);
 
     private function checkError():Void
@@ -68,11 +69,13 @@ class MidiIn
         var midiIn:MidiIn = untyped __cpp__('(MidiIn_obj*)userData');
         if (midiIn.callback == null) return;
         var constMessage = ConstPointer.fromRaw(message);
+        midiIn.m.acquire();
         midiIn.midiMessage.bytes = 0;
         for (i in 0...messageSize) {
             midiIn.midiMessage.bytes += constMessage.at(i) << (messageSize - (i + 1)) * 8;
         }
         midiIn.callback(midiIn.midiMessage, delta);
+        midiIn.m.release();
     }
 
     private static function onDestruct(midiIn:MidiIn)
