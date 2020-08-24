@@ -8,6 +8,10 @@ typedef MidiIn = grig.midi.rtmidi.MidiIn;
 typedef MidiIn = grig.midi.webmidi.MidiIn;
 #else
 
+/**
+ * Generic midi in interface that abstracts over different apis depending on the target.
+ * See [grig's website](https://grig.tech/tutorial/#midi-connection) for a tutorial on basic use.
+ */
 extern class MidiIn
 {
     public function new(api:grig.midi.Api);

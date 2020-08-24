@@ -14,14 +14,6 @@ test:
    - haxe tests.hxml -php bin/php                   && php bin/php/index.php
    - haxe tests.hxml -lua bin/tests.lua             && lua bin/tests.lua
 
-trigger_build:
-  stage: deploy
-  only:
-    refs:
-      - master
-  script:
-    - "curl -X POST -d {} https://api.netlify.com/build_hooks/$NETLIFY_TOKEN"
-
 release:
   stage: deploy
   only:

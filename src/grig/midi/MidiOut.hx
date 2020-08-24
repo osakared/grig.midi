@@ -8,6 +8,10 @@ typedef MidiOut = grig.midi.rtmidi.MidiOut;
 typedef MidiOut = grig.midi.webmidi.MidiOut;
 #else
 
+/**
+ * Generic midi out interface that abstracts over different apis depending on the target.
+ * See [grig's website](https://grig.tech/tutorial/#midi-connection) for a tutorial on basic use.
+ */
 extern class MidiOut
 {
     public function new(api:grig.midi.Api);

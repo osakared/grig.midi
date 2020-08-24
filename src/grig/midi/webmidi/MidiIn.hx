@@ -9,7 +9,7 @@ class MidiIn
 {
     private var midiAccess:MIDIAccess;
     private var midiPort:MIDIPort;
-    private var midiAccessFuture:js.Promise<Void>;
+    private var midiAccessFuture:js.Promise<Void> = null;
     private var ports:Array<String>;
     private var callback:(MidiMessage, Float)->Void;
     private var lastTime:Float = 0;
@@ -31,7 +31,7 @@ class MidiIn
         ports = new Array<String>();
 
         if (js.Browser.navigator.requestMIDIAccess == null) {
-            throw new Error(InternalError, 'webmidi not available');
+            return;
         }
         midiAccessFuture = js.Browser.navigator.requestMIDIAccess({}).then(function(_midiAccess:MIDIAccess) {
             midiAccess = _midiAccess;
@@ -49,6 +49,9 @@ class MidiIn
 
     public function getPorts():Surprise<Array<String>, Error>
     {
+        if (js.Browser.navigator.requestMIDIAccess == null) {
+            return Future.sync(Failure('Webmidi not available'));
+        }
         if (midiAccessFuture == null) return Future.sync(Success(ports));
         return Future.async(function(_callback) {
             midiAccessFuture.then(function(_) {
