@@ -50,7 +50,7 @@ class MidiIn
     public function getPorts():Surprise<Array<String>, Error>
     {
         if (js.Browser.navigator.requestMIDIAccess == null) {
-            return Future.sync(Failure('Webmidi not available'));
+            return Future.sync(Failure(Error(InternalError, 'Webmidi not available')));
         }
         if (midiAccessFuture == null) return Future.sync(Success(ports));
         return Future.async(function(_callback) {
