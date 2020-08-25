@@ -9,8 +9,6 @@ class MidiIn
 {
     private var midiAccess:MIDIAccess;
     private var midiPort:MIDIPort;
-    private var midiAccessFuture:js.Promise<Void> = null;
-    private var ports:Array<String>;
     private var callback:(MidiMessage, Float)->Void;
     private var lastTime:Float = 0;
 
@@ -27,19 +25,6 @@ class MidiIn
         if (api != grig.midi.Api.Unspecified && api != grig.midi.Api.Browser) {
             throw new Error(InternalError, 'In webmidi, only "Browser" api supported');
         }
-
-        ports = new Array<String>();
-
-        if (js.Browser.navigator.requestMIDIAccess == null) {
-            return;
-        }
-        midiAccessFuture = js.Browser.navigator.requestMIDIAccess({}).then(function(_midiAccess:MIDIAccess) {
-            midiAccess = _midiAccess;
-            midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
-                ports.push(value.name);
-            });
-            midiAccessFuture = null;
-        });
     }
 
     public static function getApis():Array<Api>
@@ -52,11 +37,15 @@ class MidiIn
         if (js.Browser.navigator.requestMIDIAccess == null) {
             return Future.sync(Failure(new Error(InternalError, 'Webmidi not available')));
         }
-        if (midiAccessFuture == null) return Future.sync(Success(ports));
         return Future.async(function(_callback) {
-            midiAccessFuture.then(function(_) {
+            js.Browser.navigator.requestMIDIAccess({}).then(function(_midiAccess:MIDIAccess) {
+                midiAccess = _midiAccess;
+                var ports = new Array<String>();
+                midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
+                    ports.push(value.name);
+                });
                 _callback(Success(ports));
-            }).catchError(function(e:js.Error) {
+            }).catchError(function(e:js.lib.Error) {
                 _callback(Failure(Error.withData(e.message, e)));
             });
         });
