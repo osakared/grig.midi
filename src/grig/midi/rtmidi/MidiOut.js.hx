@@ -26,7 +26,7 @@ class MidiOut
         try {
             output = new NativeMidiOut();
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
@@ -51,7 +51,7 @@ class MidiOut
                 }
                 _callback(Success(ports));
             }
-            catch (error:js.Error) {
+            catch (error:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports. $error.message')));
             }
         });
@@ -64,7 +64,7 @@ class MidiOut
                 output.openPort(portNumber, portName);
                 _callback(Success(this));
             }
-            catch (error:js.Error) {
+            catch (error:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error')));
             }
         });
@@ -77,7 +77,7 @@ class MidiOut
                 output.openVirtualPort(portName);
                 _callback(Success(this));
             }
-            catch (exception:js.Error) {
+            catch (exception:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port')));
             }
         });
@@ -88,7 +88,7 @@ class MidiOut
         try {
             output.closePort();
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
@@ -98,7 +98,7 @@ class MidiOut
         try {
             return output.isPortOpen();
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
@@ -112,7 +112,7 @@ class MidiOut
             messageArray.push(message.byte3);
             output.sendMessage(messageArray);
         }
-        catch(error:js.Error) {
+        catch(error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }

@@ -35,7 +35,7 @@ class MidiIn
             input = new NativeMidiIn();
             input.on('message', handleMidiEvent);
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
@@ -60,7 +60,7 @@ class MidiIn
                 }
                 _callback(Success(ports));
             }
-            catch (exception:js.Error) {
+            catch (exception:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
             }
         });
@@ -73,7 +73,7 @@ class MidiIn
                 input.openPort(portNumber, portName);
                 _callback(Success(this));
             }
-            catch (error:js.Error) {
+            catch (error:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failed to open port $portNumber. $error.message' )));
             }
         });
@@ -86,7 +86,7 @@ class MidiIn
                 input.openVirtualPort(portName);
                 _callback(Success(this));
             }
-            catch (error:js.Error) {
+            catch (error:js.lib.Error) {
                 _callback(Failure(new Error(InternalError, 'Failed to open virtual midi port: $error.message')));
             }
         });
@@ -97,7 +97,7 @@ class MidiIn
         try {
             input.closePort();
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
@@ -107,7 +107,7 @@ class MidiIn
         try {
             return input.isPortOpen();
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }

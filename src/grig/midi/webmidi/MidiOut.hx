@@ -9,7 +9,7 @@ class MidiOut
 {
     private var midiAccess:MIDIAccess;
     private var midiOutput:MIDIOutput;
-    private var midiAccessFuture:js.Promise<Void>;
+    private var midiAccessFuture:js.lib.Promise<Void>;
     private var ports:Array<String>;
 
     public function new(api:grig.midi.Api = grig.midi.Api.Unspecified)
@@ -43,7 +43,7 @@ class MidiOut
         return Future.async(function(_callback) {
             midiAccessFuture.then(function(_) {
                 _callback(Success(ports));
-            }).catchError(function(e:js.Error) {
+            }).catchError(function(e:js.lib.Error) {
                 _callback(Failure(Error.withData(e.message, e)));
             });
         });
@@ -102,7 +102,7 @@ class MidiOut
         try {
             midiOutput.send([midiMessage.byte1, midiMessage.byte2, midiMessage.byte3]);
         }
-        catch (error:js.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
