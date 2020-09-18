@@ -48,7 +48,7 @@ extern class RtMidiIn
     static public function cancelCallback(rtmidiptr:RtMidiInPtr):Void;
 }
 
-class MidiIn
+class MidiIn implements grig.midi.MidiReceiver
 {
     private var input:RtMidiInPtr;
     private var connected:Bool = false;

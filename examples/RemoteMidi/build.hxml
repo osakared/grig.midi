@@ -1,0 +1,7 @@
+-cp src
+-cp ../../src
+-dce no
+-lib grig.osc
+-lib thx.core
+-lib tink_core
+-main Main

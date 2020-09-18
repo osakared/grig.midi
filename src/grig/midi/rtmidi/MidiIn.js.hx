@@ -19,7 +19,7 @@ extern class NativeMidiIn
     public function cancelCallback():Void;
 }
 
-class MidiIn
+class MidiIn implements grig.midi.MidiReceiver
 {
     private var input:NativeMidiIn;
     private var callback:(MidiMessage, Float)->Void;
