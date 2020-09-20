@@ -1,17 +1,13 @@
-package grig.midi.rtmidi; #if python
+package grig.midi.python.rtmidi; #if python
 
-import grig.midi.Api;
 import python.Exceptions;
-import python.Tuple;
 import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-using haxe.EnumTools;
-
-@:pythonImport('rtmidi', 'MidiIn')
-@:native('MidiIn')
-extern class NativeMidiIn
+@:pythonImport('rtmidi', 'MidiOut')
+@:native('MidiOut')
+extern class NativeMidiOut
 {
     public function new(api:Int);
     public function get_ports():Array<String>;
@@ -19,30 +15,20 @@ extern class NativeMidiIn
     public function open_virtual_port(portName:String):Void;
     public function close_port():Void;
     public function is_port_open():Bool;
-    public function set_callback(callback:(midiMessage:Tuple2<Array<Int>, Float>, data:Dynamic)->Void, data:Dynamic = null):Void;
-    public function cancel_callback():Void;
+    public function send_message(message:Array<Int>):Void;
 }
 
-class MidiIn implements grig.midi.MidiReceiver
+class MidiOut
 {
-    private var midiIn:NativeMidiIn;
-    private var callback:(MidiMessage, Float)->Void;
+    private var midiOut:NativeMidiOut;
 
-    private function handleMidiEvent(message:Tuple2<Array<Int>, Float>, data:Dynamic)
-    {
-        if (callback != null) {
-            callback(MidiMessage.fromArray(message._1), message._2);
-        }
-    }
- 
     public function new(api:Api = Api.Unspecified)
     {
         try {
-            midiIn = new NativeMidiIn(api.getIndex());
-            midiIn.set_callback(handleMidiEvent);
+            midiOut = new NativeMidiOut(api.getIndex());
         }
         catch (exception:BaseException) {
-            throw new Error(InternalError, 'Failure while initializing MidiIn');
+            throw new Error(InternalError, 'Failure while initializing MidiOut');
         }
     }
 
@@ -62,19 +48,19 @@ class MidiIn implements grig.midi.MidiReceiver
     {
         return Future.async(function(_callback) {
             try {
-                return _callback(Success(midiIn.get_ports()));
+                _callback(Success(midiOut.get_ports()));
             }
             catch (exception:BaseException) {
-                return _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports')));
+                _callback(Failure(new Error(InternalError, 'Failure while fetching list of midi ports.')));
             }
         });
     }
 
-    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, tink.core.Error>
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, tink.core.Error>
     {
         return Future.async(function(_callback) {
             try {
-                midiIn.open_port(portNumber, portName);
+                midiOut.open_port(portNumber, portName);
                 _callback(Success(this));
             }
             catch (exception:BaseException) {
@@ -83,11 +69,11 @@ class MidiIn implements grig.midi.MidiReceiver
         });
     }
 
-    public function openVirtualPort(portName:String):Surprise<MidiIn, tink.core.Error>
+    public function openVirtualPort(portName:String):Surprise<MidiOut, tink.core.Error>
     {
         return Future.async(function(_callback) {
             try {
-                midiIn.open_virtual_port(portName);
+                midiOut.open_virtual_port(portName);
                 _callback(Success(this));
             }
             catch (exception:BaseException) {
@@ -99,7 +85,7 @@ class MidiIn implements grig.midi.MidiReceiver
     public function closePort():Void
     {
         try {
-            midiIn.close_port();
+            midiOut.close_port();
         }
         catch (exception:BaseException) {
             throw new Error(InternalError, 'Failure on close_port');
@@ -109,21 +95,25 @@ class MidiIn implements grig.midi.MidiReceiver
     public function isPortOpen():Bool
     {
         try {
-            return midiIn.is_port_open();
+            return midiOut.is_port_open();
         }
         catch (exception:BaseException) {
             throw new Error(InternalError, 'Failure on is_port_open');
         }
     }
 
-    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
+    public function sendMessage(message:MidiMessage):Void
     {
-        callback = _callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
+        try {
+            var messageArray = new Array<Int>();
+            messageArray.push(message.byte1);
+            messageArray.push(message.byte2);
+            messageArray.push(message.byte3);
+            midiOut.send_message(messageArray);
+        }
+        catch (exception:BaseException) {
+            throw new Error(InternalError, 'Failure on send_message');
+        }
     }
 }
 

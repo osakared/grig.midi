@@ -45,6 +45,20 @@ abstract MidiMessage(Bytes)
         return new MidiMessage(Bytes.ofData(bytes));
     }
 
+    /**
+     * Converts array of 8-bit ints to a MidiMessage
+     * @param array 
+     * @return MidiMessage
+     */
+    public static function ofArray(array:Array<Int>):MidiMessage
+    {
+        var bytes = Bytes.alloc(array.length);
+        for (i in 0...array.length) {
+            bytes.set(i, array[i]);
+        }
+        return new MidiMessage(bytes);
+    }
+
     // public function toArray():Array<Int>
     // {
     //     var array = new Array<Int>();
