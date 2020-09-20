@@ -1,4 +1,4 @@
-package grig.midi.rtmidi; #if cpp
+package grig.midi.cpp.rtmidi; #if cpp
 
 import cpp.Char;
 import cpp.ConstPointer;
@@ -13,7 +13,7 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-@:build(grig.midi.rtmidi.Build.xml())
+@:build(grig.midi.cpp.rtmidi.Build.xml())
 @:include('./rtmidi/rtmidi_c.h')
 
 typedef RtMidiOutPtr = Pointer<RtMidiWrapper>;

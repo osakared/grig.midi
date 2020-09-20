@@ -2,9 +2,11 @@ package grig.midi;
 
 import tink.core.Future;
 
-#if (nodejs || python || cpp)
+#if (cpp && !DISABLE_RTMIDI)
+typedef MidiOut = grig.midi.cpp.rtmidi.MidiOut;
+#elseif ((nodejs || python) && !DISABLE_RTMIDI)
 typedef MidiOut = grig.midi.rtmidi.MidiOut;
-#elseif js
+#elseif (js && !DISABLE_RTMIDI)
 typedef MidiOut = grig.midi.webmidi.MidiOut;
 #else
 
@@ -12,7 +14,7 @@ typedef MidiOut = grig.midi.webmidi.MidiOut;
  * Generic midi out interface that abstracts over different apis depending on the target.
  * See [grig's website](https://grig.tech/midi-connection/) for a tutorial on basic use.
  */
-extern class MidiOut
+extern class MidiOut implements MidiSender
 {
     public function new(api:grig.midi.Api);
     public static function getApis():Array<grig.midi.Api>;

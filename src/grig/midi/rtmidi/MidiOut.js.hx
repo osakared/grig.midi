@@ -17,7 +17,7 @@ extern class NativeMidiOut
     public function sendMessage(message:Array<Int>):Void;
 }
 
-class MidiOut
+class MidiOut implements grig.midi.MidiSender
 {
     private var output:NativeMidiOut;
 

@@ -2,9 +2,11 @@ package grig.midi;
 
 import tink.core.Future;
 
-#if (nodejs || python || cpp)
+#if (cpp && !DISABLE_RTMIDI)
+typedef MidiIn = grig.midi.cpp.rtmidi.MidiIn;
+#elseif ((nodejs || python) && !DISABLE_RTMIDI)
 typedef MidiIn = grig.midi.rtmidi.MidiIn;
-#elseif js
+#elseif (js && !DISABLE_RTMIDI)
 typedef MidiIn = grig.midi.webmidi.MidiIn;
 #else
 

@@ -1,6 +1,6 @@
-package grig.midi.rtmidi; #if cpp
+package grig.midi.cpp.rtmidi; #if cpp
 
-@:build(grig.midi.rtmidi.Build.xml())
+@:build(grig.midi.cpp.rtmidi.Build.xml())
 @:include('./rtmidi/rtmidi_c.h')
 
 @:native('RtMidiWrapper')
