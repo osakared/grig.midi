@@ -4,9 +4,11 @@ import tink.core.Future;
 
 #if (cpp && !DISABLE_RTMIDI)
 typedef MidiOut = grig.midi.cpp.rtmidi.MidiOut;
-#elseif ((nodejs || python) && !DISABLE_RTMIDI)
+#elseif (python && !DISABLE_RTMIDI)
+typedef MidiOut = grig.midi.python.rtmidi.MidiOut;
+#elseif (nodejs && !DISABLE_RTMIDI)
 typedef MidiOut = grig.midi.rtmidi.MidiOut;
-#elseif (js && !DISABLE_RTMIDI)
+#elseif (js && !DISABLE_WEBMIDI)
 typedef MidiOut = grig.midi.webmidi.MidiOut;
 #else
 

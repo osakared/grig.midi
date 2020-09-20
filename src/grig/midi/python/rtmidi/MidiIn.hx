@@ -49,14 +49,7 @@ class MidiIn implements grig.midi.MidiReceiver
 
     public static function getApis():Array<Api>
     {
-        var apis = new Array<Api>();
-
-        var apiIndices = RtMidi.get_compiled_api();
-        for (i in apiIndices) {
-            apis.push(i);
-        }
-
-        return apis;
+        return RtMidi.get_compiled_api();
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
@@ -102,8 +95,8 @@ class MidiIn implements grig.midi.MidiReceiver
 
     public function closePort():Void
     {
+        if (midiIn == null) return;
         try {
-            intantiateMidiIn();
             midiIn.close_port();
         }
         catch (exception:BaseException) {
@@ -113,8 +106,8 @@ class MidiIn implements grig.midi.MidiReceiver
 
     public function isPortOpen():Bool
     {
+        if (midiIn == null) return false;
         try {
-            intantiateMidiIn();
             return midiIn.is_port_open();
         }
         catch (exception:BaseException) {

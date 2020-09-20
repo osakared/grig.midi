@@ -1,5 +1,6 @@
 package grig.midi.python.rtmidi; #if python
 
+import grig.midi.Api;
 import python.Exceptions;
 import tink.core.Error;
 import tink.core.Future;
@@ -9,7 +10,7 @@ import tink.core.Outcome;
 @:native('MidiOut')
 extern class NativeMidiOut
 {
-    public function new(api:Int);
+    public function new(api:Api);
     public function get_ports():Array<String>;
     public function open_port(portNumber:Int, portName:String):Void;
     public function open_virtual_port(portName:String):Void;
@@ -20,34 +21,29 @@ extern class NativeMidiOut
 
 class MidiOut
 {
-    private var midiOut:NativeMidiOut;
+    private var api:Api;
+    private var midiOut:NativeMidiOut = null;
+
+    private function instantiateMidiOut():Void
+    {
+        midiOut = new NativeMidiOut(api);
+    }
 
     public function new(api:Api = Api.Unspecified)
     {
-        try {
-            midiOut = new NativeMidiOut(api.getIndex());
-        }
-        catch (exception:BaseException) {
-            throw new Error(InternalError, 'Failure while initializing MidiOut');
-        }
+        this.api = api;
     }
 
     public static function getApis():Array<Api>
     {
-        var apis = new Array<Api>();
-
-        var apiIndices = RtMidi.get_compiled_api();
-        for (i in apiIndices) {
-            apis.push(Api.createByIndex(i));
-        }
-
-        return apis;
+        return RtMidi.get_compiled_api();
     }
 
     public function getPorts():Surprise<Array<String>, tink.core.Error>
     {
         return Future.async(function(_callback) {
             try {
+                instantiateMidiOut();
                 _callback(Success(midiOut.get_ports()));
             }
             catch (exception:BaseException) {
@@ -60,6 +56,7 @@ class MidiOut
     {
         return Future.async(function(_callback) {
             try {
+                instantiateMidiOut();
                 midiOut.open_port(portNumber, portName);
                 _callback(Success(this));
             }
@@ -73,6 +70,7 @@ class MidiOut
     {
         return Future.async(function(_callback) {
             try {
+                instantiateMidiOut();
                 midiOut.open_virtual_port(portName);
                 _callback(Success(this));
             }
@@ -84,6 +82,7 @@ class MidiOut
 
     public function closePort():Void
     {
+        if (midiOut == null) return;
         try {
             midiOut.close_port();
         }
@@ -94,6 +93,7 @@ class MidiOut
 
     public function isPortOpen():Bool
     {
+        if (midiOut == null) return false;
         try {
             return midiOut.is_port_open();
         }

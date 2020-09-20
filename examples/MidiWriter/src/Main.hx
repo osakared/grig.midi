@@ -16,7 +16,7 @@ class Main
         var beatTimer = new Timer(500);
 
         beatTimer.run = function() {
-            midiOut.sendMessage(MidiMessage.ofBytesData(counter % 2 == 0 ? [144,54,70] : [128,54,64]));
+            midiOut.sendMessage(MidiMessage.ofArray(counter % 2 == 0 ? [144,54,70] : [128,54,64]));
             if (counter == 7) beatTimer.stop();
             counter++;
         }
