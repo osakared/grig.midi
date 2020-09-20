@@ -13,7 +13,8 @@ namespace grig {
     void rtmidi_in_destroy(RtMidiIn *rtMidiIn);
     Array<int> rtmidi_get_compiled_api();
     Array<::String> rtmidi_in_get_port_names(RtMidiIn *rtMidiIn, Array<::String> errors);
-    void rtmidi_in_open_port(RtMidiIn *rtMidiIn, unsigned int port, Array<::String> errors);
+    void rtmidi_in_open_port(RtMidiIn *rtMidiIn, unsigned int port, ::String portName, Array<::String> errors);
+    void rtmidi_in_open_virtual_port(RtMidiIn *rtMidiIn, ::String portName, Array<::String> errors);
     void rtmidi_in_set_callback(RtMidiIn *rtMidiIn, MidiInObject midiIn);
 
 }

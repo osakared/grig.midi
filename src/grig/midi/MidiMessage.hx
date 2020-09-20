@@ -24,9 +24,9 @@ enum MessageType {
     Unknown;
 }
 
-class MidiMessage
+abstract MidiMessage(Bytes)
 {
-    public var bytes:Int;
+    // public var bytes:Int;
     public var messageType(get, never):MessageType;
     public var size(get, never):Int;
     public var channel(get, never):Int;
@@ -34,44 +34,44 @@ class MidiMessage
     public var byte2(get, never):Int;
     public var byte3(get, never):Int;
 
-    public function new(_bytes:Int)
+    public function new(bytes:Bytes)
     {
-        bytes = _bytes;
+        this = bytes;
     }
 
-    public static function fromArray(_bytes:Array<Int>):MidiMessage
-    {
-        var bytes:Int = 0;
-        var i = 1;
-        for (byte in _bytes) {
-            bytes += byte << (_bytes.length - i) * 8;
-            i++;
-        }
+    // public static function fromArray(_bytes:Array<Int>):MidiMessage
+    // {
+    //     var bytes:Int = 0;
+    //     var i = 1;
+    //     for (byte in _bytes) {
+    //         bytes += byte << (_bytes.length - i) * 8;
+    //         i++;
+    //     }
 
-        return new MidiMessage(bytes);
-    }
+    //     return new MidiMessage(bytes);
+    // }
 
-    public function toArray():Array<Int>
-    {
-        var array = new Array<Int>();
-        array.push(byte1);
-        array.push(byte2);
-        array.push(byte3);
-        return array;
-    }
+    // public function toArray():Array<Int>
+    // {
+    //     var array = new Array<Int>();
+    //     array.push(byte1);
+    //     array.push(byte2);
+    //     array.push(byte3);
+    //     return array;
+    // }
 
-    public function toBytes():Bytes
-    {
-        var bytes = Bytes.alloc(3);
-        bytes.set(0, byte1);
-        bytes.set(1, byte2);
-        bytes.set(2, byte3);
-        return bytes;
-    }
+    // public function toBytes():Bytes
+    // {
+    //     var bytes = Bytes.alloc(3);
+    //     bytes.set(0, byte1);
+    //     bytes.set(1, byte2);
+    //     bytes.set(2, byte3);
+    //     return bytes;
+    // }
 
     private function get_channel():Int
     {
-        return (bytes & 0xf0000) >> 0x10;
+        return this.get(0) & 0xf;
     }
 
     public static function messageTypeForByte(byte:Int):MessageType
@@ -106,7 +106,7 @@ class MidiMessage
 
     private function get_messageType():MessageType
     {
-        return messageTypeForByte(bytes >> 0x10);
+        return messageTypeForByte(this.get(0));
     }
 
     public static function sizeForMessageType(messageType:MessageType):Int
@@ -142,16 +142,16 @@ class MidiMessage
 
     private function get_byte1():Int
     {
-        return (bytes & 0xff0000) >> 0x10;
+        return this.get(0);
     }
 
     private function get_byte2():Int
     {
-        return (bytes & 0xff00) >> 8;
+        return this.get(1);
     }
 
     private function get_byte3():Int
     {
-        return (bytes & 0xff);
+        return this.get(2);
     }
 }

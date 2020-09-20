@@ -1,10 +1,17 @@
 #include "rtmidi.h"
 
+#include <iostream>
+
 namespace grig {
 
     ::String stdStringToHaxeString(std::string &str)
     {
         return String(str.c_str(), str.size()).dup();
+    }
+
+    std::string haxeStringToStdString(String &str)
+    {
+        return std::string(str.utf8_str());
     }
 
     RtMidiIn *rtmidi_in_create(Array<::String> errors)
@@ -50,10 +57,19 @@ namespace grig {
         return portNames;
     }
 
-    void rtmidi_in_open_port(RtMidiIn *rtMidiIn, unsigned int port, Array<::String> errors)
+    void rtmidi_in_open_port(RtMidiIn *rtMidiIn, unsigned int port, ::String portName, Array<::String> errors)
     {
         try {
-            rtMidiIn->openPort(port, "grig midi input");
+            rtMidiIn->openPort(port, haxeStringToStdString(portName));
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+        }
+    }
+
+    void rtmidi_in_open_virtual_port(RtMidiIn *rtMidiIn, ::String portName, Array<::String> errors)
+    {
+        try {
+            rtMidiIn->openVirtualPort(haxeStringToStdString(portName));
         } catch (RtMidiError &error) {
             errors->push(::String(error.what()));
         }
@@ -61,8 +77,20 @@ namespace grig {
 
     void grig_callback(double timeStamp, std::vector<unsigned char> *message, void *userData)
     {
-        auto midiIn = (grig::midi::cpp::rtmidi::MidiIn_obj*)userData;
-        midiIn->midiCallback(timeStamp);
+        int base = 0;
+        // Register thread to hxcpp's gc
+        hx::SetTopOfStack(&base, true);
+
+        auto midiIn = (grig::midi::cpp::rtmidi::MidiIn_obj *)userData;
+        // We lose the memory efficiency of the rtmidi interface since we're copying message
+        // into a new gc'd object, midiBytes.
+        auto midiBytes = Array_obj<unsigned char>::__new();
+        for (size_t i = 0; i < message->size(); ++i) {
+            midiBytes->push((*message)[i]);
+        }
+        midiIn->midiCallback(timeStamp, midiBytes);
+        
+        hx::SetTopOfStack((int*)0, true);
     }
 
     void rtmidi_in_set_callback(RtMidiIn *rtMidiIn, MidiInObject midiIn)
