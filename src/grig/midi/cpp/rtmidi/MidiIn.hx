@@ -22,7 +22,7 @@ typedef RtMidiInPtr = Pointer<RtMidiIn>;
 extern class RtMidiInWrapper
 {
     @:native("grig::rtmidi_in_create")
-    static public function create(errors:Array<String>):RtMidiInPtr;
+    static public function create(api:grig.midi.Api, errors:Array<String>):RtMidiInPtr;
     @:native("grig::rtmidi_in_destroy")
     static public function destroy(rtMidiIn:RtMidiInPtr):Void;
     @:native("grig::rtmidi_get_compiled_api")
@@ -37,10 +37,11 @@ extern class RtMidiInWrapper
     static public function setCallback(rtMidiIn:RtMidiInPtr, midiIn:MidiIn):Void;
 }
 
-@:headerInclude('./rtmidi.h')
-@:cppInclude('./rtmidi.cc')
+@:headerInclude('./rtmidi_in.h')
+@:cppInclude('./rtmidi_in.cc')
 class MidiIn implements MidiReceiver
 {
+    private var api:grig.midi.Api;
     private var errors = new Array<String>();
     private var rtMidiIn:RtMidiInPtr = null;
     private var callback:(MidiMessage, Float)->Void;
@@ -64,7 +65,7 @@ class MidiIn implements MidiReceiver
     private function instantiateRtMidiIn(errorCallback:(error:Error)->Void):Void
     {
         if (rtMidiIn != null) return;
-        rtMidiIn = RtMidiInWrapper.create(errors);
+        rtMidiIn = RtMidiInWrapper.create(api, errors);
         checkError('RtMidi instantiation error:', errorCallback);
         if (rtMidiIn != null) {
             RtMidiInWrapper.setCallback(rtMidiIn, this);
@@ -78,6 +79,7 @@ class MidiIn implements MidiReceiver
 
     public function new(api:grig.midi.Api)
     {
+        this.api = api;
         Gc.setFinalizer(this, cpp.Function.fromStaticFunction(onDestruct));
     }
 

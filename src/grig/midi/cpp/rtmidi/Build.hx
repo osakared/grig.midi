@@ -123,8 +123,8 @@ class Build
         var rtmidiFiles = 'rtmidi-files';
         var _files = Xml.createElement('files');
         _files.set('id', rtmidiFiles);
-        _files.set('dir', _lib_path);
-        for (fileName in ['RtMidi.cpp']) {
+        _files.set('dir', _source_path);
+        for (fileName in [Path.join(['rtmidi', 'RtMidi.cpp']), 'rtmidi.cc']) {
             var _file = Xml.createElement('file');
             _file.set('name', fileName);
             _files.addChild(_file);

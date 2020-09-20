@@ -14,11 +14,22 @@ namespace grig {
         return std::string(str.utf8_str());
     }
 
-    RtMidiIn *rtmidi_in_create(Array<::String> errors)
+    Array<int> rtmidi_get_compiled_api()
+    {
+        auto apiInts = Array_obj<int>::__new();
+        std::vector<RtMidi::Api> apis;
+        RtMidi::getCompiledApi(apis);
+        for (size_t i = 0; i < apis.size(); ++i) {
+            apiInts->push(apis[i]);
+        }
+        return apiInts;
+    }
+
+    RtMidiIn *rtmidi_in_create(int api, Array<::String> errors)
     {
         RtMidiIn *midiIn = nullptr;
         try {
-            midiIn = new RtMidiIn();
+            midiIn = new RtMidiIn((RtMidi::Api)api);
         } catch (RtMidiError &error) {
             errors->push(::String(error.what()));
             return nullptr;
@@ -29,17 +40,6 @@ namespace grig {
     void rtmidi_in_destroy(RtMidiIn *rtMidiIn)
     {
         delete rtMidiIn;
-    }
-
-    Array<int> rtmidi_get_compiled_api()
-    {
-        auto apiInts = Array_obj<int>::__new();
-        std::vector<RtMidi::Api> apis;
-        RtMidi::getCompiledApi(apis);
-        for (size_t i = 0; i < apis.size(); ++i) {
-            apiInts->push(apis[i]);
-        }
-        return apiInts;
     }
 
     Array<::String> rtmidi_in_get_port_names(RtMidiIn *rtMidiIn, Array<::String> errors)
@@ -75,27 +75,67 @@ namespace grig {
         }
     }
 
-    void grig_callback(double timeStamp, std::vector<unsigned char> *message, void *userData)
+    RtMidiOut *rtmidi_out_create(int api, Array<::String> errors)
     {
-        int base = 0;
-        // Register thread to hxcpp's gc
-        hx::SetTopOfStack(&base, true);
-
-        auto midiIn = (grig::midi::cpp::rtmidi::MidiIn_obj *)userData;
-        // We lose the memory efficiency of the rtmidi interface since we're copying message
-        // into a new gc'd object, midiBytes.
-        auto midiBytes = Array_obj<unsigned char>::__new();
-        for (size_t i = 0; i < message->size(); ++i) {
-            midiBytes->push((*message)[i]);
+        RtMidiOut *midiOut = nullptr;
+        try {
+            midiOut = new RtMidiOut((RtMidi::Api)api);
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+            return nullptr;
         }
-        midiIn->midiCallback(timeStamp, midiBytes);
-        
-        hx::SetTopOfStack((int*)0, true);
+        return midiOut;
     }
 
-    void rtmidi_in_set_callback(RtMidiIn *rtMidiIn, MidiInObject midiIn)
+    void rtmidi_out_destroy(RtMidiOut *rtMidiOut)
     {
-        rtMidiIn->setCallback(&grig_callback, (void *)midiIn.GetPtr());
+        delete rtMidiOut;
+    }
+
+    Array<::String> rtmidi_out_get_port_names(RtMidiOut *rtMidiOut, Array<::String> errors)
+    {
+        auto portNames = Array_obj<::String>::__new();
+        try {
+            unsigned int count = rtMidiOut->getPortCount();
+            for (unsigned int i = 0; i < count; ++i) {
+                auto portName = rtMidiOut->getPortName(i);
+                portNames->push(stdStringToHaxeString(portName));
+            }
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+        }
+        return portNames;
+    }
+
+    void rtmidi_out_open_port(RtMidiOut *rtMidiOut, unsigned int port, ::String portName, Array<::String> errors)
+    {
+        try {
+            rtMidiOut->openPort(port, haxeStringToStdString(portName));
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+        }
+    }
+
+    void rtmidi_out_open_virtual_port(RtMidiOut *rtMidiOut, ::String portName, Array<::String> errors)
+    {
+        try {
+            rtMidiOut->openVirtualPort(haxeStringToStdString(portName));
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+        }
+    }
+
+    void rtmidi_out_send_message(RtMidiOut *rtMidiOut, Array<unsigned char> message, Array<::String> errors)
+    {
+        try {
+            std::vector<unsigned char> outgoingMessage(message->length);
+            for (size_t i = 0; i < message->length; ++i) {
+                outgoingMessage[i] = message->__unsafe_get(i);
+            }
+            rtMidiOut->sendMessage(&outgoingMessage);
+        } catch (RtMidiError &error) {
+            errors->push(::String(error.what()));
+        }
     }
 
 }

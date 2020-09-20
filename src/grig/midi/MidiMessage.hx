@@ -24,11 +24,12 @@ enum MessageType {
     Unknown;
 }
 
+@:forward
 abstract MidiMessage(Bytes)
 {
     // public var bytes:Int;
     public var messageType(get, never):MessageType;
-    public var size(get, never):Int;
+    // public var size(get, never):Int;
     public var channel(get, never):Int;
     public var byte1(get, never):Int;
     public var byte2(get, never):Int;
@@ -39,17 +40,10 @@ abstract MidiMessage(Bytes)
         this = bytes;
     }
 
-    // public static function fromArray(_bytes:Array<Int>):MidiMessage
-    // {
-    //     var bytes:Int = 0;
-    //     var i = 1;
-    //     for (byte in _bytes) {
-    //         bytes += byte << (_bytes.length - i) * 8;
-    //         i++;
-    //     }
-
-    //     return new MidiMessage(bytes);
-    // }
+    public static function ofBytesData(bytes:haxe.io.BytesData):MidiMessage
+    {
+        return new MidiMessage(Bytes.ofData(bytes));
+    }
 
     // public function toArray():Array<Int>
     // {
@@ -135,10 +129,10 @@ abstract MidiMessage(Bytes)
         }
     }
 
-    private function get_size():Int
-    {
-        return sizeForMessageType(messageType);
-    }
+    // private function get_size():Int
+    // {
+    //     return sizeForMessageType(messageType);
+    // }
 
     private function get_byte1():Int
     {
