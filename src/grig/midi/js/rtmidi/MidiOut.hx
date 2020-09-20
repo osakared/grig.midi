@@ -1,4 +1,4 @@
-package grig.midi.rtmidi; #if nodejs
+package grig.midi.js.rtmidi; #if nodejs
 
 import tink.core.Error;
 import tink.core.Future;

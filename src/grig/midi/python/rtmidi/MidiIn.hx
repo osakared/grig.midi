@@ -23,11 +23,10 @@ extern class NativeMidiIn
     public function cancel_callback():Void;
 }
 
-class MidiIn implements grig.midi.MidiReceiver
+class MidiIn extends grig.midi.MidiInBase
 {
     private var api:Api;
     private var midiIn:NativeMidiIn = null;
-    private var callback:(MidiMessage, Float)->Void;
 
     private function handleMidiEvent(message:Tuple2<Array<Int>, Float>, data:Dynamic)
     {
@@ -114,16 +113,6 @@ class MidiIn implements grig.midi.MidiReceiver
             trace('Failure on is_port_open');
             return false;
         }
-    }
-
-    public function setCallback(callback:(MidiMessage, Float)->Void):Void
-    {
-        this.callback = callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
     }
 }
 

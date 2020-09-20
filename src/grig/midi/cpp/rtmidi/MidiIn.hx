@@ -39,12 +39,11 @@ extern class RtMidiInWrapper
 
 @:headerInclude('./rtmidi_in.h')
 @:cppInclude('./rtmidi_in.cc')
-class MidiIn implements MidiReceiver
+class MidiIn extends grig.midi.MidiInBase
 {
     private var api:grig.midi.Api;
     private var errors = new Array<String>();
     private var rtMidiIn:RtMidiInPtr = null;
-    private var callback:(MidiMessage, Float)->Void;
 
     private function midiCallback(delta:Float, message:Array<cpp.UInt8>):Void
     {
@@ -139,16 +138,6 @@ class MidiIn implements MidiReceiver
     {
         if (rtMidiIn == null) return false;
         return rtMidiIn.ref.isPortOpen();
-    }
-
-    public function setCallback(callback:(MidiMessage, Float)->Void):Void
-    {
-        this.callback = callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
     }
 }
 

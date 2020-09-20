@@ -19,7 +19,7 @@ extern class NativeMidiOut
     public function send_message(message:Array<Int>):Void;
 }
 
-class MidiOut
+class MidiOut implements MidiSender
 {
     private var api:Api;
     private var midiOut:NativeMidiOut = null;

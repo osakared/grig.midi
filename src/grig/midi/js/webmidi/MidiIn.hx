@@ -1,21 +1,20 @@
-package grig.midi.webmidi;  #if (js && !nodejs)
+package grig.midi.js.webmidi;  #if (js && !nodejs)
 
 import js.html.midi.*;
 import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-class MidiIn
+class MidiIn extends grig.midi.MidiInBase
 {
     private var midiAccess:MIDIAccess;
     private var midiPort:MIDIPort;
-    private var callback:(MidiMessage, Float)->Void;
     private var lastTime:Float = 0;
 
     private function handleMidiEvent(midiMessageEvent:MIDIMessageEvent)
     {
         if (callback != null) {
-            callback(MidiMessage.fromArray([midiMessageEvent.data[0], midiMessageEvent.data[1], midiMessageEvent.data[2]]), midiMessageEvent.timeStamp - lastTime);
+            callback(MidiMessage.ofBytesData(midiMessageEvent.data.buffer), midiMessageEvent.timeStamp - lastTime);
             lastTime = midiMessageEvent.timeStamp;
         }
     }
@@ -37,15 +36,15 @@ class MidiIn
         if (js.Browser.navigator.requestMIDIAccess == null) {
             return Future.sync(Failure(new Error(InternalError, 'Webmidi not available')));
         }
-        return Future.async(function(_callback) {
-            js.Browser.navigator.requestMIDIAccess({}).then(function(_midiAccess:MIDIAccess) {
+        return Future.async((_callback) -> {
+            js.Browser.navigator.requestMIDIAccess({}).then((_midiAccess:MIDIAccess) -> {
                 midiAccess = _midiAccess;
                 var ports = new Array<String>();
-                midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {
+                midiAccess.inputs.forEach((value:MIDIInput, key:String, map) -> {
                     ports.push(value.name);
                 });
                 _callback(Success(ports));
-            }).catchError(function(e:js.lib.Error) {
+            }).catchError((e:js.lib.Error) -> {
                 _callback(Failure(Error.withData(e.message, e)));
             });
         });
@@ -81,33 +80,20 @@ class MidiIn
 
     public function openVirtualPort(portName:String):Surprise<MidiIn, Error>
     {
-        return Future.async(function(_callback) {
-            _callback(Failure(new Error(InternalError, 'Virtual ports not supported')));
-        });
+        return Future.sync(Failure(new Error(InternalError, 'Virtual ports not supported')));
     }
 
     public function closePort():Void
     {
-        if (midiPort != null) {
-            midiPort.close().then(function(_midiPort:MIDIPort) {
-                midiPort = null;
-            });
-        }
+        if (midiPort == null) return;
+        midiPort.close().then(function(_midiPort:MIDIPort) {
+            midiPort = null;
+        });
     }
 
     public function isPortOpen():Bool
     {
         return (midiPort != null && midiPort.state == CONNECTED);
-    }
-
-    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
-    {
-        callback = _callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
     }
 }
 

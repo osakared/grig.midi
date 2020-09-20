@@ -7,9 +7,9 @@ typedef MidiIn = grig.midi.cpp.rtmidi.MidiIn;
 #elseif (python && !DISABLE_RTMIDI)
 typedef MidiIn = grig.midi.python.rtmidi.MidiIn;
 #elseif (nodejs && !DISABLE_RTMIDI)
-typedef MidiIn = grig.midi.rtmidi.MidiIn;
+typedef MidiIn = grig.midi.js.rtmidi.MidiIn;
 #elseif (js && !DISABLE_WEBMIDI)
-typedef MidiIn = grig.midi.webmidi.MidiIn;
+typedef MidiIn = grig.midi.js.webmidi.MidiIn;
 #else
 
 /**

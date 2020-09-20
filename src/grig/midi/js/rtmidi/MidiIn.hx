@@ -1,4 +1,4 @@
-package grig.midi.rtmidi; #if nodejs
+package grig.midi.js.rtmidi; #if nodejs
 
 import tink.core.Error;
 import tink.core.Future;
@@ -19,14 +19,13 @@ extern class NativeMidiIn
     public function cancelCallback():Void;
 }
 
-class MidiIn implements grig.midi.MidiReceiver
+class MidiIn extends grig.midi.MidiInBase
 {
     private var input:NativeMidiIn;
-    private var callback:(MidiMessage, Float)->Void;
 
     private function handleMidiEvent(delta:Float, message:Array<Int>)
     {
-        if (callback != null) callback(MidiMessage.fromArray(message), delta);
+        if (callback != null) callback(MidiMessage.ofArray(message), delta);
     }
 
     public function new(api:Api = Api.Unspecified)
@@ -110,16 +109,6 @@ class MidiIn implements grig.midi.MidiReceiver
         catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
-    }
-
-    public function setCallback(_callback:(MidiMessage, Float)->Void):Void
-    {
-        callback = _callback;
-    }
-
-    public function cancelCallback():Void
-    {
-        callback = null;
     }
 }
 
