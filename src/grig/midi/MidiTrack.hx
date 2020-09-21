@@ -79,19 +79,19 @@ class MidiTrack
             // Okay I think it's a message
             else {
                 var messageType = MidiMessage.messageTypeForByte(flag);
-                var messageBytes:Int = 0;
+                var messageBytes = haxe.io.Bytes.alloc(4);
                 if (messageType == Unknown) { // running status
-                    messageBytes = lastFlag << 0x10;
+                    messageBytes.set(0, lastFlag);
                     messageType = MidiMessage.messageTypeForByte(lastFlag);
                 }
                 else {
-                    messageBytes = flag << 0x10;
+                    messageBytes.set(0, flag);
                     lastFlag = flag;
                 }
                 // implement running status
                 var messageSize = MidiMessage.sizeForMessageType(messageType);
                 for (i in 1...(messageSize)) {
-                    messageBytes |= input.readByte() << (0x08 * (2 - i));
+                    messageBytes.set(i, input.readByte());
                     size -= 1;
                 }
 

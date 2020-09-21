@@ -15,8 +15,7 @@ class MidiMessageEvent implements MidiFileEvent
     {
         if (dry) return midiMessage.size;
         for (i in 0...midiMessage.size) {
-            var shiftAmount = 8 * (2 - i);
-            output.writeByte((midiMessage.bytes & (0xff << shiftAmount)) >> shiftAmount);
+            output.writeByte(midiMessage.get(i));
         }
         return midiMessage.size;
     }

@@ -29,7 +29,7 @@ abstract MidiMessage(Bytes)
 {
     // public var bytes:Int;
     public var messageType(get, never):MessageType;
-    // public var size(get, never):Int;
+    public var size(get, never):Int;
     public var channel(get, never):Int;
     public var byte1(get, never):Int;
     public var byte2(get, never):Int;
@@ -143,10 +143,10 @@ abstract MidiMessage(Bytes)
         }
     }
 
-    // private function get_size():Int
-    // {
-    //     return sizeForMessageType(messageType);
-    // }
+    private function get_size():Int
+    {
+        return sizeForMessageType(messageType);
+    }
 
     private function get_byte1():Int
     {

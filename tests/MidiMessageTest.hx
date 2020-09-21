@@ -10,7 +10,7 @@ class MidiMessageTest
 
     public function new()
     {
-        midiMessage = new MidiMessage(0x813050);
+        midiMessage = MidiMessage.ofArray([0x81, 0x30, 0x50]);
     }
 
     public function testByte1()
