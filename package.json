@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "deasync": "^0.1.20",
+    "midi": "^1.0.0"
+  }
+}

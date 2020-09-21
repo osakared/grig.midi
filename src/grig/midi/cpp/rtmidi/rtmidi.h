@@ -1,7 +1,9 @@
 #ifndef RTMIDI_HAXE_WRAPPER_H
 #define RTMIDI_HAXE_WRAPPER_H
 
+#ifndef HXCPP_H
 #include <hxcpp.h>
+#endif
 #include "rtmidi/RtMidi.h"
 
 namespace grig {
