@@ -6,7 +6,7 @@
 
 See the [haxe grig documentation](https://grig.tech/).
 
-Stuff for working with midi data and midi files.
+Stuff for working with midi data and midi files and connecting to hardware and virtual midi ports.
 
 ## Instructions
 

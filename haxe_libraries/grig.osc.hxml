@@ -1,5 +1,5 @@
-# @install: lix --silent download "https://gitlab.com/api/v4/projects/haxe-grig%2Fgrig.osc/repository/archive.zip?sha=a8656c1ebb70e5ca338b31ee714964b9a088f8c4&" into grig.osc/0.0.2/gitlab/a8656c1ebb70e5ca338b31ee714964b9a088f8c4
+# @install: lix --silent download "haxelib:/grig.osc#0.0.2" into grig.osc/0.0.2/haxelib
 -lib thx.core
 -lib tink_core
--cp ${HAXE_LIBCACHE}/grig.osc/0.0.2/gitlab/a8656c1ebb70e5ca338b31ee714964b9a088f8c4/src
+-cp ${HAXE_LIBCACHE}/grig.osc/0.0.2/haxelib/src
 -D grig.osc=0.0.2
