@@ -25,8 +25,8 @@ class OscMidiIn implements grig.midi.MidiReceiver
     {
         if (callback == null) return;
         var midiArgument:grig.osc.argument.MidiArgument = cast message.arguments[0];
-        var midiBytes = if (midiArgument.val & 0xff == 0) (midiArgument.val >> 8) & 0xffffff else midiArgument.val;
-        var midiMessage = new MidiMessage(midiBytes);
+        var bytes = midiArgument.midiBytes.sub(0, MidiMessage.sizeForMessageType(MidiMessage.messageTypeForByte(midiArgument.midiBytes.get(0))));
+        var midiMessage = new MidiMessage(bytes);
         var newMessageTime = Timer.stamp();
         if (lastMessageTime == null) lastMessageTime = newMessageTime;
         var delta:Float = newMessageTime - lastMessageTime;

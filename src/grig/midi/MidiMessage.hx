@@ -59,24 +59,6 @@ abstract MidiMessage(Bytes)
         return new MidiMessage(bytes);
     }
 
-    // public function toArray():Array<Int>
-    // {
-    //     var array = new Array<Int>();
-    //     array.push(byte1);
-    //     array.push(byte2);
-    //     array.push(byte3);
-    //     return array;
-    // }
-
-    // public function toBytes():Bytes
-    // {
-    //     var bytes = Bytes.alloc(3);
-    //     bytes.set(0, byte1);
-    //     bytes.set(1, byte2);
-    //     bytes.set(2, byte3);
-    //     return bytes;
-    // }
-
     private function get_channel():Int
     {
         return this.get(0) & 0xf;
