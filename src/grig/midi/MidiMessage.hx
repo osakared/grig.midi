@@ -45,6 +45,11 @@ abstract MidiMessage(Bytes)
         return new MidiMessage(Bytes.ofData(bytes));
     }
 
+    public function getBytes():Bytes
+    {
+        return this;
+    }
+
     /**
      * Converts array of 8-bit ints to a MidiMessage
      * @param array 

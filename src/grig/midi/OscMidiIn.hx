@@ -7,9 +7,8 @@ import haxe.Timer;
 /**
  * Midi receiver that works via OSC
  */
-class OscMidiIn implements grig.midi.MidiReceiver
+class OscMidiIn extends grig.midi.MidiInBase
 {
-    private var callback:(MidiMessage, Float)->Void;
     private var lastMessageTime:Null<Float> = null;
     
     public function new()
@@ -32,11 +31,6 @@ class OscMidiIn implements grig.midi.MidiReceiver
         var delta:Float = newMessageTime - lastMessageTime;
         lastMessageTime = newMessageTime;
         callback(midiMessage, delta);
-    }
-
-    public function setCallback(callback:(MidiMessage, Float)->Void):Void
-    {
-        this.callback = callback;
     }
 }
 
