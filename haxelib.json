@@ -15,6 +15,7 @@
   "releasenote": "Fixed issues with hxcpp target and added osc support when used with grig.osc",
   "version": "0.0.4",
   "dependencies": {
-    "tink_core": "1.20.0"
+    "tink_core": "1.27.1",
+    "thx.core": "0.44.0"
   }
 }

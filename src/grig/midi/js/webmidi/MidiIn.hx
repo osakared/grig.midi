@@ -54,12 +54,10 @@ class MidiIn extends grig.midi.MidiInBase
     {
         return Future.async(function(_callback) {
             if (midiAccess == null) {
-                _callback(Failure(new Error(InternalError, 'MIDIInput not available')));
-                return;
+                return _callback(Failure(new Error(InternalError, 'MIDIInput not available')));
             }
             if (isPortOpen()) {
-                _callback(Failure(new Error(InternalError, 'Midi port already open')));
-                return;
+                return _callback(Failure(new Error(InternalError, 'Midi port already open')));
             }
             var i = 0;
             midiAccess.inputs.forEach(function(value:MIDIInput, key:String, map) {

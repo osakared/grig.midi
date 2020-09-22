@@ -37,3 +37,19 @@ Install python-rtmidi if you want midi port support:
 Install midi if you want midi port support:
 
 `sudo npm install midi -g --python=/usr/bin/python2.7 --unsafe-perm`
+
+### c#
+
+Install [managed-midi](https://github.com/atsushieno/managed-midi):
+
+`nuget install managed-midi -OutputDirectory packages`
+
+Then you must link to the appropriate net framework version. Example of building `MidiReader` example (from `./examples/MidiReader`):
+
+`haxe build.hxml --net-lib ../../packages/managed-midi.1.9.14/lib/net45/Commons.Music.Midi.dll --net-lib ../../packages/managed-midi.1.9.14/lib/net45/alsa-sharp.dll -D net-ver=45 -lib hxcs -cs bin/MidiReader`
+
+Then run with:
+
+`mono bin/MidiReader/bin/Main.exe`
+
+hxcs comes with .net 2.0, 3.0 and 4.5 so 4.5 seems to be the easiest way to build.

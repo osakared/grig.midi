@@ -93,6 +93,7 @@ class MidiIn extends grig.midi.MidiInBase
             instantiateRtMidiIn((error) -> {
                 callback(Failure(error));
             });
+            if (rtMidiIn == null) return;
             var portNames = RtMidiInWrapper.getPortNames(rtMidiIn, errors);
             checkError('Get port names error:', (error) -> {
                 callback(Failure(error));
@@ -107,6 +108,7 @@ class MidiIn extends grig.midi.MidiInBase
             instantiateRtMidiIn((error) -> {
                 callback(Failure(error));
             });
+            if (rtMidiIn == null) return;
             RtMidiInWrapper.openPort(rtMidiIn, portNumber, portName, errors);
             checkError('Error opening port:', (error) -> {
                 callback(Failure(error));
@@ -121,6 +123,7 @@ class MidiIn extends grig.midi.MidiInBase
             instantiateRtMidiIn((error) -> {
                 callback(Failure(error));
             });
+            if (rtMidiIn == null) return;
             RtMidiInWrapper.openVirtualPort(rtMidiIn, portName, errors);
             checkError('Error opening virtual port:', (error) -> {
                 callback(Failure(error));

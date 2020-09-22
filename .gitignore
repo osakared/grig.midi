@@ -1,3 +1,5 @@
 bin
 .DS_Store
 node_modules
+# for C# packages
+/packages
