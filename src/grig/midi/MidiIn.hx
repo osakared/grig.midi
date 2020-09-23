@@ -12,6 +12,8 @@ typedef MidiIn = grig.midi.js.rtmidi.MidiIn;
 typedef MidiIn = grig.midi.cs.managedmidi.MidiIn;
 #elseif (js && !DISABLE_WEBMIDI)
 typedef MidiIn = grig.midi.js.webmidi.MidiIn;
+#elseif (java && !DISABLE_JAVAX_MIDI)
+typedef MidiIn = grig.midi.java.MidiIn;
 #else
 
 /**
