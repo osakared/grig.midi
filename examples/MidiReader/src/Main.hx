@@ -37,7 +37,7 @@ class Main
             switch outcome {
                 case Success(ports):
                     trace(ports);
-                    midiIn.openPort(3, 'grig.midi').handle(function(midiOutcome) {
+                    midiIn.openPort(0, 'grig.midi').handle(function(midiOutcome) {
                         switch midiOutcome {
                             case Success(_):
                                 mainLoop(midiIn);

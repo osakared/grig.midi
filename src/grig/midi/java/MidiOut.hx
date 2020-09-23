@@ -6,21 +6,14 @@ import tink.core.Error;
 import tink.core.Future;
 import tink.core.Outcome;
 
-@:allow(grig.midi.java.MidiReceiver)
-class MidiIn extends grig.midi.MidiInBase
+class MidiOut implements grig.midi.MidiSender
 {
-    private var receiver:MidiReceiver;
     private var device:MidiDevice;
+    private var receiver:java.javax.sound.midi.Receiver;
     private var portOpen:Bool = false;
-
-    private function handleMidiEvent(midiMessage:grig.midi.MidiMessage, delta:Float):Void
-    {
-        if (callback != null) callback(midiMessage, delta);
-    }
 
     public function new(api:grig.midi.Api = grig.midi.Api.Unspecified)
     {
-        receiver = new MidiReceiver(this);
     }
 
     public static function getApis():Array<Api>
@@ -45,7 +38,7 @@ class MidiIn extends grig.midi.MidiInBase
         });
     }
 
-    public function openPort(portNumber:Int, portName:String):Surprise<MidiIn, Error>
+    public function openPort(portNumber:Int, portName:String):Surprise<MidiOut, Error>
     {
         return Future.async((_callback) -> {
             try {
@@ -60,8 +53,7 @@ class MidiIn extends grig.midi.MidiInBase
                 device = MidiSystem.getMidiDevice(info);
                 device.open();
                 portOpen = true;
-                var transmitter = device.getTransmitter();
-                transmitter.setReceiver(receiver);
+                receiver = device.getReceiver();
                 _callback(Success(this));
             }
             catch (exception:java.lang.Exception) {
@@ -70,7 +62,7 @@ class MidiIn extends grig.midi.MidiInBase
         });
     }
 
-    public function openVirtualPort(portName:String):Surprise<MidiIn, Error>
+    public function openVirtualPort(portName:String):Surprise<MidiOut, Error>
     {
         return Future.sync(Failure(new Error(InternalError, 'Virtual ports not supported')));
     }
@@ -84,7 +76,14 @@ class MidiIn extends grig.midi.MidiInBase
 
     public function isPortOpen():Bool
     {
-        return portOpen;
+        return receiver != null && portOpen;
+    }
+
+    public function sendMessage(midiMessage:MidiMessage)
+    {
+        if (!isPortOpen()) return;
+        var message = new ArbitraryMidiMessage(midiMessage);
+        receiver.send(message, -1);
     }
 }
 
