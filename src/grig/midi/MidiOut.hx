@@ -8,6 +8,8 @@ typedef MidiOut = grig.midi.cpp.rtmidi.MidiOut;
 typedef MidiOut = grig.midi.python.rtmidi.MidiOut;
 #elseif (nodejs && !DISABLE_RTMIDI)
 typedef MidiOut = grig.midi.js.rtmidi.MidiOut;
+#elseif (cs && !DISABLE_MANAGEDMIDI)
+typedef MidiOut = grig.midi.cs.managedmidi.MidiOut;
 #elseif (js && !DISABLE_WEBMIDI)
 typedef MidiOut = grig.midi.js.webmidi.MidiOut;
 #else
