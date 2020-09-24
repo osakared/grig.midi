@@ -7,13 +7,13 @@
     "hardware",
     "music"
   ],
-  "description": "Cross-target abstractions for supporting midi ports (C++, python, js/nodejs, js/webmidi, python) and support for reading and writing midi files.",
+  "description": "Cross-target abstractions for supporting midi ports (C++, python, js/nodejs, js/webmidi, python) using rtmidi and support for reading and writing midi files.",
   "classPath": "src",
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Fixed issues with hxcpp target and added osc support when used with grig.osc",
-  "version": "0.0.4",
+  "releasenote": "Added midi port support to java and c#",
+  "version": "0.0.5",
   "dependencies": {
     "tink_core": "1.27.1",
     "thx.core": "0.44.0"
