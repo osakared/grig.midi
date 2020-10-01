@@ -42,5 +42,7 @@ class SequencerSpecificEvent implements MidiFileEvent
         }
         return written;
     }
-
+    
+    public function toString()
+        return '[SequencerSpecificEvent: absoluteTime($absoluteTime) / id($id) / bytes($bytes)]';
 }

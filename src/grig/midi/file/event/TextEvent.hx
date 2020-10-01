@@ -68,4 +68,7 @@ class TextEvent implements MidiFileEvent
         }
         return written;
     }
+    
+    public function toString()
+        return '[TextEvent: absoluteTime($absoluteTime) / type($type) / text(${bytes.getString(0, bytes.length)})]';
 }

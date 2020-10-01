@@ -149,4 +149,7 @@ abstract MidiMessage(Bytes)
     {
         return this.get(2);
     }
+    
+    public function toString()
+        return '[MidiMessage: messageType($messageType) / byte2($byte2) / byte3($byte3)]';
 }
