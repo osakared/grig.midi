@@ -19,4 +19,7 @@ class MidiMessageEvent implements MidiFileEvent
         }
         return midiMessage.size;
     }
+    
+    public function toString()
+        return '[MidiMessageEvent: absoluteTime($absoluteTime) / midiMessage($midiMessage)]';
 }

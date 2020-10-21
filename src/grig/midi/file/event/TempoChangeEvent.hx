@@ -27,4 +27,7 @@ class TempoChangeEvent implements MidiFileEvent
         }
         return 6;
     }
+    
+    public function toString()
+        return '[TempoChangeEvent: absoluteTime($absoluteTime) / msPQN($microsecondsPerQuarterNote) / tempo($tempo)]';
 }

@@ -21,4 +21,7 @@ class SequenceEvent implements MidiFileEvent
         }
         return 5;
     }
+    
+    public function toString()
+        return '[SequenceEvent: absoluteTime($absoluteTime) / sequenceNumber($sequenceNumber)]';
 }

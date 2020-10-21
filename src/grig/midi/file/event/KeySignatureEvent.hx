@@ -31,4 +31,7 @@ class KeySignatureEvent implements MidiFileEvent
         }
         return 5;
     }
+    
+    public function toString()
+        return '[KeySignatureEvent: absoluteTime($absoluteTime) / numSharps($numSharps) / isMinor($isMinor)]';
 }
