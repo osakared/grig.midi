@@ -11,6 +11,7 @@ class RunTests
         Runner.run(TestBatch.make([
             new MidiFileTest(),
             new MidiMessageTest(),
+            new MidiMessageOfMessageTypeTests(),
             new VariableWriterTest()
         ])).handle(Runner.exit);
     }
