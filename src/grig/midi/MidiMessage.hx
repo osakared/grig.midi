@@ -69,22 +69,23 @@ abstract MidiMessage(Bytes)
         return this.get(0) & 0xf;
     }
 
-    public static function ofMessageType(type:MessageType, values:Array<Int>, channel:Int = 0):MidiMessage {
+    public static function ofMessageType(type:MessageType, values:Array<Int>, channel:Int = 0):MidiMessage
+    {
         var messageSize = sizeForMessageType(type);
         var numValuesRequired = messageSize - 1;
-        if(values.length != numValuesRequired){
+        if (values.length != numValuesRequired){
             throw '$type requires $numValuesRequired values';
         }
-        if(channel < 0 || channel > 15){
+        if (channel < 0 || channel > 15){
             throw 'Channel out of range';
         }
         var bytes:Array<Int> = [messageByteForType(type, channel)];
-        if(values.length > 0){
-            for(v in values){
-                if(!valueIsWithinRange(v)){
+        if (values.length > 0) {
+            for (v in values) {
+                if (!valueIsWithinRange(v)) {
                     throw 'Value out of range $v';
                 }
-                else{
+                else {
                     bytes.push(v);
                 }
             }
@@ -92,12 +93,14 @@ abstract MidiMessage(Bytes)
         return ofArray(bytes);
     }
         
-    private static function valueIsWithinRange(value:Int):Bool {
+    private static function valueIsWithinRange(value:Int):Bool
+    {
         return value >= 0 && value <= 127;
     }
 
-    private static function messageByteForType(type:MessageType, channel:Int = 0):Int {
-        var byte = switch (type){
+    private static function messageByteForType(type:MessageType, channel:Int = 0):Int
+    {
+        var byte = switch (type) {
             case NoteOff: 0x8;
             case NoteOn: 0x9;
             case PolyPressure: 0xA;
@@ -108,15 +111,16 @@ abstract MidiMessage(Bytes)
             default: 0x0;
         }
 
-        if(byte == 0x0){
+        if (byte == 0x0) {
             return sysExMessageByteForType(type, channel);
         }
        
-        return  byte << 0x4 | channel;
+        return byte << 0x4 | channel;
     }
 
-    private static function sysExMessageByteForType(type:MessageType, channel:Int = 0):Int {
-        var byte = switch(type){
+    private static function sysExMessageByteForType(type:MessageType, channel:Int = 0):Int
+    {
+        return switch (type) {
             case SysEx: 0x0;
             case TimeCode: 0x1;
             case SongPosition: 0x2;
@@ -129,8 +133,7 @@ abstract MidiMessage(Bytes)
             case KeepAlive: 0xE;
             case Reset: 0xF;
             default: 0x0; // don't do this?
-        }
-        return byte;
+        };
     }
 
     public static function messageTypeForByte(byte:Int):MessageType

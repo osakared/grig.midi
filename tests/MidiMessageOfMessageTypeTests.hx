@@ -13,7 +13,9 @@ class MidiMessageOfMessageTypeTests
     @:variant([0], true)
     @:variant([0, 0, 0], true)
     @:variant([0, 0], false)
-    public function validateTwoValues(values:Array<Int>, shouldThrow:Bool){
+
+    public function validateTwoValues(values:Array<Int>, shouldThrow:Bool)
+    {
         var expectedException = shouldThrow ? "NoteOff requires 2 values" : "";
         var thrownException = "";
         var wasThrown = false;
@@ -32,7 +34,8 @@ class MidiMessageOfMessageTypeTests
     @:variant([0, 0], true)
     @:variant([0, 0, 0], true)
     @:variant([0], false)
-    public function validateOneValue(values:Array<Int>, shouldThrow:Bool){
+    public function validateOneValue(values:Array<Int>, shouldThrow:Bool)
+    {
         var expectedException = shouldThrow ? "ProgramChange requires 1 values" : "";
         var thrownException = "";
         var wasThrown = false;
@@ -52,7 +55,8 @@ class MidiMessageOfMessageTypeTests
     @:variant([0, 0], true)
     @:variant([0, 0, 0], true)
     @:variant([], false)
-    public function validateZeroValues(values:Array<Int>, shouldThrow:Bool){
+    public function validateZeroValues(values:Array<Int>, shouldThrow:Bool)
+    {
         var expectedException = shouldThrow ? "TuneRequest requires 0 values" : "";
         var thrownException = "";
         var wasThrown = false;
@@ -71,7 +75,8 @@ class MidiMessageOfMessageTypeTests
     @:variant(ProgramChange, [128])
     @:variant(NoteOff, [-1, -1])
     @:variant(NoteOff, [128, 128])
-    public function requireValue1WithinRange(type:MessageType, values:Array<Int>){
+    public function requireValue1WithinRange(type:MessageType, values:Array<Int>)
+    {
         var exceptionWasThrown = false;
         var exceptionMessage = "";
         try {
@@ -87,7 +92,8 @@ class MidiMessageOfMessageTypeTests
     
     @:variant(-1)
     @:variant(16)
-    public function requireChannelWithinRange(channel:Int){
+    public function requireChannelWithinRange(channel:Int)
+    {
         var exceptionMessage = "";
         var exceptionWasThrown = false;
         try {
@@ -101,11 +107,13 @@ class MidiMessageOfMessageTypeTests
         return assert(exceptionWasThrown == true && exceptionMessage == "Channel out of range");
     }
 
-    function messageTypeFromByte(byte:Int):Int{
+    function messageTypeFromByte(byte:Int):Int
+    {
         return byte >> 0x4;
     }
 
-    function channelFromByte(byte:Int):Int{
+    function channelFromByte(byte:Int):Int
+    {
         return byte & 0xf;
     }
 
@@ -125,27 +133,31 @@ class MidiMessageOfMessageTypeTests
     @:variant(13)
     @:variant(14)
     @:variant(15)
-    public function testOfMessageType_Byte1_Channel(channel:Int){
+    public function testOfMessageType_Byte1_Channel(channel:Int)
+    {
         var midiMessage = MidiMessage.ofMessageType(MessageType.NoteOn, [0, 0], channel);
         var statusByteMessageChannel = channelFromByte(midiMessage.byte1);
         return assert(statusByteMessageChannel == channel);
     }
 
-    public function testOfMessageType_3Bytes_Byte2(){
+    public function testOfMessageType_3Bytes_Byte2()
+    {
         var note = 42;
         var velocity = 0;
         var midiMessage = MidiMessage.ofMessageType(MessageType.NoteOn, [note, velocity]);
         return assert(midiMessage.byte2 == note);
     }
     
-    public function testOfMessageType_3Bytes_Byte3(){
+    public function testOfMessageType_3Bytes_Byte3()
+    {
         var note = 0;
         var velocity = 64;
         var midiMessage = MidiMessage.ofMessageType(MessageType.NoteOn, [note, velocity]);
         return assert(midiMessage.byte3 == velocity);
     }
 
-    public function testOfMessageType_2Bytes_Byte2(){
+    public function testOfMessageType_2Bytes_Byte2()
+    {
         var program = 127;
         var midiMessage = MidiMessage.ofMessageType(MessageType.ProgramChange, [program]);
         return assert(midiMessage.byte2 == program);
@@ -156,7 +168,8 @@ class MidiMessageOfMessageTypeTests
     @:variant(PolyPressure)
     @:variant(ControlChange)
     @:variant(Pitch)
-    public function testOfMessageType_3Bytes_Type(expectedType:MessageType){
+    public function testOfMessageType_3Bytes_Type(expectedType:MessageType)
+    {
         var midiMessage = MidiMessage.ofMessageType(expectedType, [0, 0]);
         var returnedType = MidiMessage.messageTypeForByte(midiMessage.byte1);
         return assert(expectedType == returnedType);
@@ -164,13 +177,15 @@ class MidiMessageOfMessageTypeTests
 
     @:variant(ProgramChange)
     @:variant(Pressure)
-    public function testOfMessageType_2Bytes_Type(expectedType:MessageType){
+    public function testOfMessageType_2Bytes_Type(expectedType:MessageType)
+    {
         var midiMessage = MidiMessage.ofMessageType(expectedType, [0]);
         var returnedType = MidiMessage.messageTypeForByte(midiMessage.byte1);
         return assert(expectedType == returnedType);
     }
 
-    function constructSysExByte(byte:Int):Int{
+    function constructSysExByte(byte:Int):Int
+    {
         return 0xF << 0x4 | byte;
     }
 
@@ -185,7 +200,8 @@ class MidiMessageOfMessageTypeTests
     @:variant(Stop, 0xC)
     @:variant(KeepAlive, 0xE)
     @:variant(Reset, 0xF)
-    public function sysexMessageTypes(type:MessageType, byte:Int) {
+    public function sysexMessageTypes(type:MessageType, byte:Int)
+    {
         var sysex = constructSysExByte(byte);
         var returnedType = MidiMessage.messageTypeForByte(sysex);
         return assert(type == returnedType);
@@ -200,12 +216,13 @@ class MidiMessageOfMessageTypeTests
     @:variant(Stop)
     @:variant(KeepAlive)
     @:variant(Reset)
-    public function testOfMessageType_SysEx_1Bytes_Type(expectedType:MessageType){
+    public function testOfMessageType_SysEx_1Bytes_Type(expectedType:MessageType)
+    {
         var midiMessage:MidiMessage = null;
-        try{
+        try {
              midiMessage = MidiMessage.ofMessageType(expectedType, []);
         }
-        catch(e){
+        catch(e) {
             trace(e.message);
         }
         var sysExByte = constructSysExByte(midiMessage.byte1);
@@ -215,7 +232,8 @@ class MidiMessageOfMessageTypeTests
 
     @:variant(TimeCode)
     @:variant(SongSelect)
-    public function testOfMessageType_SysEx_2Bytes_Type(expectedType:MessageType){
+    public function testOfMessageType_SysEx_2Bytes_Type(expectedType:MessageType)
+    {
         var midiMessage:MidiMessage = null;
         try{
              midiMessage = MidiMessage.ofMessageType(expectedType, [0]);
@@ -229,7 +247,8 @@ class MidiMessageOfMessageTypeTests
     }
 
     @:variant(SongPosition)
-    public function testOfMessageType_SysEx_3Bytes_Type(expectedType:MessageType){
+    public function testOfMessageType_SysEx_3Bytes_Type(expectedType:MessageType)
+    {
         var midiMessage:MidiMessage = null;
         try{
              midiMessage = MidiMessage.ofMessageType(expectedType, [0, 0]);
