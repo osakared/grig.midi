@@ -21,4 +21,7 @@ class ChannelPrefixEvent implements MidiFileEvent
         }
         return 5;
     }
+    
+    public function toString()
+        return '[ChannelPrefixEvent: absoluteTime($absoluteTime) / channelPrefix($channelPrefix)]';
 }

@@ -43,4 +43,7 @@ class SmtpeOffsetEvent implements MidiFileEvent
         }
         return 8;
     }
+    
+    public function toString()
+        return '[SmtpeOffsetEvent: absoluteTime($absoluteTime) / hours($hours) / minutes($minutes) / seconds($seconds) / frames($frames) / fractionalFrames($fractionalFrames)]';
 }

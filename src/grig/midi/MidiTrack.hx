@@ -27,6 +27,7 @@ class MidiTrack
                 return new TextEvent(input.readString(metaLength), absoluteTime, type);
             }
             case 0x20: return new ChannelPrefixEvent(input.readByte(), absoluteTime);
+            case 0x21: return new PortPrefixEvent(input.readByte(), absoluteTime);
             case 0x2F: return new EndTrackEvent(absoluteTime);
             case 0x51: return new TempoChangeEvent(input.readUInt24(), absoluteTime);
             case 0x54: return SmtpeOffsetEvent.fromInput(input, absoluteTime);
