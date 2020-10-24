@@ -84,16 +84,18 @@ class MidiTrack
             else {
                 var messageType = MessageType.ofByte(flag);
                 var messageBytes = new Array<Int>();
+                var runningStatus = false;
                 if (messageType == Unknown) { // running status
                     messageBytes[0] = lastFlag;
                     messageType = MessageType.ofByte(lastFlag);
+                    runningStatus = true;
                 }
                 else {
                     messageBytes[0] = flag;
                     lastFlag = flag;
                 }
-                // TODO: implement running status
                 var messageSize = MidiMessage.sizeForMessageType(messageType);
+                if (runningStatus) messageSize--;
                 for (i in 1...messageSize) {
                     messageBytes[i] = input.readByte();
                     size -= 1;

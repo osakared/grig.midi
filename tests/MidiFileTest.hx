@@ -80,6 +80,14 @@ class MidiFileTest
         return assert(midiFile.tracks.length == 2 && midiFile.format == 2);
     }
 
+    public function testRunningStatus()
+    {
+        var bytes = Resource.getBytes('tests/asteroid_dance.mid');
+        var input = new BytesInput(bytes);
+        midiFile = MidiFile.fromInput(input);
+        return assert(midiFile.tracks[1].midiEvents.length == 1733);
+    }
+
     public function testPortPrefixEvent()
     {
         var bytes = Resource.getBytes('tests/impmarch_anvil_channel_port_event.mid');
