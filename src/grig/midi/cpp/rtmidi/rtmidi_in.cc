@@ -1,7 +1,5 @@
 #include "rtmidi_in.h"
 
-#include <iostream>
-
 namespace grig {
 
     void grig_callback(double timeStamp, std::vector<unsigned char> *message, void *userData)
