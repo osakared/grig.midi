@@ -6,7 +6,7 @@ import haxe.io.Bytes;
 
 class OscMidiOut implements MidiSender
 {
-    private static inline var c = 4;
+    private static inline var MAX_LENGTH = 4;
 
     private var client:Client;
 

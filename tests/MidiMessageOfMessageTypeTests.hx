@@ -1,7 +1,7 @@
 package;
 
+import grig.midi.MessageType;
 import grig.midi.MidiMessage;
-import grig.midi.MidiMessage.MessageType;
 import tink.unit.Assert.*;
 
 @:asserts
@@ -16,7 +16,7 @@ class MidiMessageOfMessageTypeTests
 
     public function validateTwoValues(values:Array<Int>, shouldThrow:Bool)
     {
-        var expectedException = shouldThrow ? "NoteOff requires 2 values" : "";
+        var expectedException = shouldThrow ? '$NoteOff requires 2 values' : "";
         var thrownException = "";
         var wasThrown = false;
         try {
@@ -36,7 +36,7 @@ class MidiMessageOfMessageTypeTests
     @:variant([0], false)
     public function validateOneValue(values:Array<Int>, shouldThrow:Bool)
     {
-        var expectedException = shouldThrow ? "ProgramChange requires 1 values" : "";
+        var expectedException = shouldThrow ? '$ProgramChange requires 1 values' : "";
         var thrownException = "";
         var wasThrown = false;
         try {
@@ -57,7 +57,7 @@ class MidiMessageOfMessageTypeTests
     @:variant([], false)
     public function validateZeroValues(values:Array<Int>, shouldThrow:Bool)
     {
-        var expectedException = shouldThrow ? "TuneRequest requires 0 values" : "";
+        var expectedException = shouldThrow ? '$TuneRequest requires 0 values' : "";
         var thrownException = "";
         var wasThrown = false;
         try {
@@ -171,7 +171,7 @@ class MidiMessageOfMessageTypeTests
     public function testOfMessageType_3Bytes_Type(expectedType:MessageType)
     {
         var midiMessage = MidiMessage.ofMessageType(expectedType, [0, 0]);
-        var returnedType = MidiMessage.messageTypeForByte(midiMessage.byte1);
+        var returnedType = MessageType.ofByte(midiMessage.byte1);
         return assert(expectedType == returnedType);
     }
 
@@ -180,7 +180,7 @@ class MidiMessageOfMessageTypeTests
     public function testOfMessageType_2Bytes_Type(expectedType:MessageType)
     {
         var midiMessage = MidiMessage.ofMessageType(expectedType, [0]);
-        var returnedType = MidiMessage.messageTypeForByte(midiMessage.byte1);
+        var returnedType = MessageType.ofByte(midiMessage.byte1);
         return assert(expectedType == returnedType);
     }
 
@@ -203,7 +203,7 @@ class MidiMessageOfMessageTypeTests
     public function sysexMessageTypes(type:MessageType, byte:Int)
     {
         var sysex = constructSysExByte(byte);
-        var returnedType = MidiMessage.messageTypeForByte(sysex);
+        var returnedType = MessageType.ofByte(sysex);
         return assert(type == returnedType);
     }
 
@@ -226,7 +226,7 @@ class MidiMessageOfMessageTypeTests
             trace(e.message);
         }
         var sysExByte = constructSysExByte(midiMessage.byte1);
-        var returnedType = MidiMessage.messageTypeForByte(sysExByte);
+        var returnedType = MessageType.ofByte(sysExByte);
         return assert(expectedType == returnedType);
     }
 
@@ -242,7 +242,7 @@ class MidiMessageOfMessageTypeTests
             trace(e.message);
         }
         var sysExByte = constructSysExByte(midiMessage.byte1);
-        var returnedType = MidiMessage.messageTypeForByte(sysExByte);
+        var returnedType = MessageType.ofByte(sysExByte);
         return assert(expectedType == returnedType);
     }
 
@@ -257,7 +257,7 @@ class MidiMessageOfMessageTypeTests
             trace(e.message);
         }
         var sysExByte = constructSysExByte(midiMessage.byte1);
-        var returnedType = MidiMessage.messageTypeForByte(sysExByte);
+        var returnedType = MessageType.ofByte(sysExByte);
         return assert(expectedType == returnedType);
     }
 }

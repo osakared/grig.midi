@@ -14,9 +14,7 @@ class MidiMessageEvent implements MidiFileEvent
     public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (dry) return midiMessage.size;
-        for (i in 0...midiMessage.size) {
-            output.writeByte(midiMessage.get(i));
-        }
+        output.write(midiMessage.getBytes());
         return midiMessage.size;
     }
     

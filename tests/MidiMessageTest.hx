@@ -1,5 +1,6 @@
 package;
 
+import grig.midi.MessageType;
 import grig.midi.MidiMessage;
 import tink.unit.Assert.*;
 

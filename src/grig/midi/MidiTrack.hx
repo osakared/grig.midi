@@ -60,14 +60,17 @@ class MidiTrack
             var flag = input.readByte();
             size -= 1;
 
-            // Sysex, to be ignored.. read until end of sysex to continue
             if (flag == 0xF0) {
+                var messageBytes = [flag];
                 while (true) {
+                    var byte = input.readByte();
+                    messageBytes.push(byte);
                     size -= 1;
-                    if (input.readByte() == 0xF7) {
+                    if (byte == 0xF7) {
                         break;
                     }
                 }
+                midiTrack.midiEvents.push(new MidiMessageEvent(MidiMessage.ofArray(messageBytes), absoluteTime));
             }
 
             else if (flag == 0xFF) {
@@ -79,24 +82,24 @@ class MidiTrack
 
             // Okay I think it's a message
             else {
-                var messageType = MidiMessage.messageTypeForByte(flag);
-                var messageBytes = haxe.io.Bytes.alloc(4);
+                var messageType = MessageType.ofByte(flag);
+                var messageBytes = new Array<Int>();
                 if (messageType == Unknown) { // running status
-                    messageBytes.set(0, lastFlag);
-                    messageType = MidiMessage.messageTypeForByte(lastFlag);
+                    messageBytes[0] = lastFlag;
+                    messageType = MessageType.ofByte(lastFlag);
                 }
                 else {
-                    messageBytes.set(0, flag);
+                    messageBytes[0] = flag;
                     lastFlag = flag;
                 }
-                // implement running status
+                // TODO: implement running status
                 var messageSize = MidiMessage.sizeForMessageType(messageType);
-                for (i in 1...(messageSize)) {
-                    messageBytes.set(i, input.readByte());
+                for (i in 1...messageSize) {
+                    messageBytes[i] = input.readByte();
                     size -= 1;
                 }
 
-                midiTrack.midiEvents.push(new MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
+                midiTrack.midiEvents.push(new MidiMessageEvent(MidiMessage.ofArray(messageBytes), absoluteTime));
             }
         }
 
