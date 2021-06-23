@@ -12,10 +12,10 @@
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Added midi port support to java and c#",
-  "version": "0.0.5",
+  "releasenote": "Added fixes to midi files",
+  "version": "0.0.6",
   "dependencies": {
-    "tink_core": "1.27.1",
+    "tink_core": "2.0.2",
     "thx.core": "0.44.0"
   }
 }
