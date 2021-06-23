@@ -45,4 +45,7 @@ class TimeSignatureEvent implements MidiFileEvent
         }
         return 7;
     }
+    
+    public function toString()
+        return '[TimeSignatureEvent: absoluteTime($absoluteTime) / numerator($numerator) / denominatorExponent($denominatorExponent) / denominator($denominator) / midiClocksPerClick($midiClocksPerClick) / thirtySecondNotesPerTick($thirtySecondNotesPerTick)]';
 }

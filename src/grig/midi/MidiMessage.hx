@@ -2,28 +2,6 @@ package grig.midi;
 
 import haxe.io.Bytes;
 
-enum MessageType {
-    NoteOn;
-    NoteOff;
-    PolyPressure;
-    Pressure;
-    ControlChange;
-    ProgramChange;
-    Pitch;
-    SysEx;
-    TimeCode;
-    SongPosition;
-    SongSelect;
-    TuneRequest;
-    TimeClock;
-    Start;
-    Continue;
-    Stop;
-    KeepAlive;
-    Reset;
-    Unknown;
-}
-
 @:forward
 abstract MidiMessage(Bytes)
 {
@@ -69,39 +47,52 @@ abstract MidiMessage(Bytes)
         return this.get(0) & 0xf;
     }
 
-    public static function messageTypeForByte(byte:Int):MessageType
+    public static function ofMessageType(type:MessageType, values:Array<Int>, channel:Int = 0):MidiMessage
     {
-        return switch (byte >> 0x04) {
-            case 0x8: NoteOff;
-            case 0x9: NoteOn;
-            case 0xA: PolyPressure;
-            case 0xB: ControlChange;
-            case 0xC: ProgramChange;
-            case 0xD: Pressure;
-            case 0xE: Pitch;
-            case 0xF: {
-                switch (byte & 0xF) {
-                    case 0x0: SysEx;
-                    case 0x1: TimeCode;
-                    case 0x2: SongPosition;
-                    case 0x3: SongSelect;
-                    case 0x6: TuneRequest;
-                    case 0x8: TimeClock;
-                    case 0xA: Start;
-                    case 0xB: Continue;
-                    case 0xC: Stop;
-                    case 0xE: KeepAlive;
-                    case 0xF: Reset;
-                    default: Unknown;
-                }
+        if (type != SysEx) {
+            var messageSize = sizeForMessageType(type);
+            var numValuesRequired = messageSize - 1;
+            if (values.length != numValuesRequired){
+                throw '$type requires $numValuesRequired values';
             }
-            default: Unknown;
         }
+        if (channel < 0 || channel > 15) {
+            throw 'Channel out of range';
+        }
+        var bytes:Array<Int> = [messageByteForType(type, channel)];
+        if (values.length > 0) {
+            for (v in values) {
+                if (type != SysEx && !valueIsWithinRange(v)) {
+                    throw 'Value out of range $v';
+                }
+                bytes.push(v);
+            }
+        }
+        if (type == SysEx) {
+            bytes.push(0xf7);
+        }
+        return ofArray(bytes);
+    }
+        
+    private static function valueIsWithinRange(value:Int):Bool
+    {
+        return value >= 0 && value <= 127;
+    }
+
+    private static function messageByteForType(type:MessageType, channel:Int = 0):Int
+    {
+        var byte:Int = type;
+
+        if (!type.isSysCommon()) {
+            byte |= channel;
+        }
+        
+        return byte;
     }
 
     private function get_messageType():MessageType
     {
-        return messageTypeForByte(this.get(0));
+        return MessageType.ofByte(this.get(0));
     }
 
     public static function sizeForMessageType(messageType:MessageType):Int
@@ -124,15 +115,18 @@ abstract MidiMessage(Bytes)
             case Stop: 1;
             case KeepAlive: 1;
             case Reset: 1;
-            default: { // includes SysEx, which shouldn't be deserialized as a MidiMessage anyway, and undefineds
-                throw "Unknown midi message type: " + messageType;
+            case SysEx: {
+                throw "Cannot determine length of sysex messages ahead of time";
+            }
+            case Unknown: {
+                throw 'Unknown midi message type: $messageType';
             }
         }
     }
 
     private function get_size():Int
     {
-        return sizeForMessageType(messageType);
+        return this.length;
     }
 
     private function get_byte1():Int
@@ -149,4 +143,7 @@ abstract MidiMessage(Bytes)
     {
         return this.get(2);
     }
+    
+    public function toString()
+        return '[MidiMessage: messageType($messageType) / byte2($byte2) / byte3($byte3)]';
 }

@@ -6,3 +6,5 @@
 -resource tests/bohemian_rhapsody.mid
 -resource tests/heart_of_glass.mid
 -resource tests/impmarch.mid
+-resource tests/impmarch_anvil_channel_port_event.mid
+-resource tests/asteroid_dance.mid

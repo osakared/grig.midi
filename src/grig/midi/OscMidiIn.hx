@@ -24,7 +24,21 @@ class OscMidiIn extends grig.midi.MidiInBase
     {
         if (callback == null) return;
         var midiArgument:grig.osc.argument.MidiArgument = cast message.arguments[0];
-        var bytes = midiArgument.midiBytes.sub(0, MidiMessage.sizeForMessageType(MidiMessage.messageTypeForByte(midiArgument.midiBytes.get(0))));
+        var messageType = MessageType.ofByte(midiArgument.midiBytes.get(0));
+        var bytesLength = if (messageType == SysEx) {
+            var finalByte = 0;
+            for (i in 0...midiArgument.midiBytes.length) {
+                if (midiArgument.midiBytes.get(i) == 0xf7) {
+                    finalByte = i + 1;
+                    break;
+                }
+            }
+            finalByte;
+        }
+        else {
+            MidiMessage.sizeForMessageType(messageType);
+        }
+        var bytes = midiArgument.midiBytes.sub(0, bytesLength);
         var midiMessage = new MidiMessage(bytes);
         var newMessageTime = Timer.stamp();
         if (lastMessageTime == null) lastMessageTime = newMessageTime;

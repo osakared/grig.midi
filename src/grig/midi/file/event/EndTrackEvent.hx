@@ -18,4 +18,7 @@ class EndTrackEvent implements MidiFileEvent
         }
         return 3;
     }
+    
+    public function toString()
+        return '[EndTrackEvent: absoluteTime($absoluteTime)]';
 }

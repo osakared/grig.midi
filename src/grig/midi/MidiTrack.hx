@@ -27,6 +27,7 @@ class MidiTrack
                 return new TextEvent(input.readString(metaLength), absoluteTime, type);
             }
             case 0x20: return new ChannelPrefixEvent(input.readByte(), absoluteTime);
+            case 0x21: return new PortPrefixEvent(input.readByte(), absoluteTime);
             case 0x2F: return new EndTrackEvent(absoluteTime);
             case 0x51: return new TempoChangeEvent(input.readUInt24(), absoluteTime);
             case 0x54: return SmtpeOffsetEvent.fromInput(input, absoluteTime);
@@ -59,14 +60,17 @@ class MidiTrack
             var flag = input.readByte();
             size -= 1;
 
-            // Sysex, to be ignored.. read until end of sysex to continue
             if (flag == 0xF0) {
+                var messageBytes = [flag];
                 while (true) {
+                    var byte = input.readByte();
+                    messageBytes.push(byte);
                     size -= 1;
-                    if (input.readByte() == 0xF7) {
+                    if (byte == 0xF7) {
                         break;
                     }
                 }
+                midiTrack.midiEvents.push(new MidiMessageEvent(MidiMessage.ofArray(messageBytes), absoluteTime));
             }
 
             else if (flag == 0xFF) {
@@ -78,24 +82,26 @@ class MidiTrack
 
             // Okay I think it's a message
             else {
-                var messageType = MidiMessage.messageTypeForByte(flag);
-                var messageBytes = haxe.io.Bytes.alloc(4);
+                var messageType = MessageType.ofByte(flag);
+                var messageBytes = new Array<Int>();
+                var runningStatus = false;
                 if (messageType == Unknown) { // running status
-                    messageBytes.set(0, lastFlag);
-                    messageType = MidiMessage.messageTypeForByte(lastFlag);
+                    messageBytes[0] = lastFlag;
+                    messageType = MessageType.ofByte(lastFlag);
+                    runningStatus = true;
                 }
                 else {
-                    messageBytes.set(0, flag);
+                    messageBytes[0] = flag;
                     lastFlag = flag;
                 }
-                // implement running status
                 var messageSize = MidiMessage.sizeForMessageType(messageType);
-                for (i in 1...(messageSize)) {
-                    messageBytes.set(i, input.readByte());
+                if (runningStatus) messageSize--;
+                for (i in 1...messageSize) {
+                    messageBytes[i] = input.readByte();
                     size -= 1;
                 }
 
-                midiTrack.midiEvents.push(new MidiMessageEvent(new MidiMessage(messageBytes), absoluteTime));
+                midiTrack.midiEvents.push(new MidiMessageEvent(MidiMessage.ofArray(messageBytes), absoluteTime));
             }
         }
 

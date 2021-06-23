@@ -1,7 +1,5 @@
 #include "rtmidi.h"
 
-#include <iostream>
-
 namespace grig {
 
     ::String stdStringToHaxeString(std::string &str)
