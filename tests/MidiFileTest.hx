@@ -30,12 +30,16 @@ class MidiFileTest
             try {
                 var messageEvent = cast(midiEvent, grig.midi.file.event.MidiMessageEvent);
                 if (messageEvent.midiMessage.messageType == NoteOn) {
-                    return assert(messageEvent.midiMessage.byte2 == 0x3E);
+                    var pitch = messageEvent.midiMessage.pitch;
+                    asserts.assert(pitch.note == grig.pitch.PitchClass.D);
+                    asserts.assert(pitch.octave == 5);
+                    return asserts.done();
                 }
             }
             catch(e:Dynamic) {}
         }
-        return assert(false);
+        asserts.assert(false);
+        return asserts.done();
     }
 
     public function testWrite()

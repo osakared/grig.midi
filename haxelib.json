@@ -15,6 +15,7 @@
   "releasenote": "Added fixes to midi files",
   "version": "0.0.6",
   "dependencies": {
+    "grig.pitch": "0.0.2",
     "tink_core": "2.0.2",
     "thx.core": "0.44.0"
   }

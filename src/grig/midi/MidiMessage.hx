@@ -1,5 +1,6 @@
 package grig.midi;
 
+import grig.pitch.Pitch;
 import haxe.io.Bytes;
 
 @:forward
@@ -7,11 +8,13 @@ abstract MidiMessage(Bytes)
 {
     // public var bytes:Int;
     public var messageType(get, never):MessageType;
+    public var controlChangeType(get, never):ControlChangeType;
     public var size(get, never):Int;
     public var channel(get, never):Int;
     public var byte1(get, never):Int;
     public var byte2(get, never):Int;
     public var byte3(get, never):Int;
+    public var pitch(get, never):Pitch;
 
     public function new(bytes:Bytes)
     {
@@ -95,6 +98,12 @@ abstract MidiMessage(Bytes)
         return MessageType.ofByte(this.get(0));
     }
 
+    private function get_controlChangeType():ControlChangeType
+    {
+        if (MessageType.ofByte(this.get(0)) != MessageType.ControlChange) return NonControl;
+        return ControlChangeType.ofByte(this.get(1));
+    }
+
     public static function sizeForMessageType(messageType:MessageType):Int
     {
         return switch(messageType) {
@@ -142,6 +151,11 @@ abstract MidiMessage(Bytes)
     private function get_byte3():Int
     {
         return this.get(2);
+    }
+
+    private function get_pitch():Pitch
+    {
+        return Pitch.fromMidiNote(this.get(1));
     }
     
     public function toString()

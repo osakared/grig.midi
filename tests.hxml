@@ -3,6 +3,7 @@
 -main RunTests
 -dce full
 -lib tink_unittest
+-lib grig.pitch
 -resource tests/bohemian_rhapsody.mid
 -resource tests/heart_of_glass.mid
 -resource tests/impmarch.mid
