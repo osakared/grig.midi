@@ -12,8 +12,8 @@
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Added fixes to midi files",
-  "version": "0.0.6",
+  "releasenote": "Added pitch and control change type to MidiMessage",
+  "version": "0.0.7",
   "dependencies": {
     "grig.pitch": "0.0.2",
     "tink_core": "2.0.2",
