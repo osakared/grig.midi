@@ -107,7 +107,14 @@ class MidiOut implements MidiSender
         try {
             var messageArray = new Array<Int>();
             messageArray.push(message.byte1);
-            messageArray.push(message.byte2);
+            if(message.messageType == SysEx){
+                for(i in 1...message.length - 1){
+                    messageArray.push(message.get(i));
+                }
+            }
+            else{
+                messageArray.push(message.byte2);
+            }
             messageArray.push(message.byte3);
             midiOut.send_message(messageArray);
         }
