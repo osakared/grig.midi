@@ -150,7 +150,7 @@ abstract MidiMessage(Bytes)
 
     private function get_byte3():Int
     {
-        return this.get(2);
+        return this.get(this.length - 1);
     }
 
     private function get_pitch():Pitch
