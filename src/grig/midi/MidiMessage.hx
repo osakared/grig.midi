@@ -172,7 +172,10 @@ abstract MidiMessage(Bytes)
         }
         return messageArray;
     }
-    
-    public function toString()
-        return '[MidiMessage: messageType($messageType) / byte2($byte2) / byte3($byte3)]';
+
+    public function toString(asHex:Bool = false)
+    {
+        var message = [for(i in 0...this.length) asHex ? StringTools.hex(this.get(i)) : Std.string(this.get(i))].join(" ");
+        return '[MidiMessage: $message]';
+    }
 }

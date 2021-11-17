@@ -40,4 +40,11 @@ class MidiMessageTest
         return assert(controlChangeMessage.controlChangeType == ControlChangeType.Sustain);
     }
 
+
+    public function testToString()
+    {
+        var controlChangeMessage = MidiMessage.ofArray([177, 64, 127]);
+        return assert(controlChangeMessage.toString() == '[MidiMessage: 177 64 127]');
+    }
+
 }
