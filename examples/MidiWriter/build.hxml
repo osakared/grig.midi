@@ -3,5 +3,6 @@
 -dce no
 -lib tink_core
 -lib thx.core
+-lib grig.pitch
 -main Main
 # -js bin/MidiWriter.js
