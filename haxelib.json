@@ -12,8 +12,8 @@
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Added pitch and control change type to MidiMessage",
-  "version": "0.0.7",
+  "releasenote": "Fixed lack of sysex support in MidiOut in python and js environments",
+  "version": "0.0.8",
   "dependencies": {
     "grig.pitch": "0.0.2",
     "tink_core": "2.0.2",
