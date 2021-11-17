@@ -158,18 +158,9 @@ abstract MidiMessage(Bytes)
         return Pitch.fromMidiNote(this.get(1));
     }
 
-    public function toString(asHex:Bool = false){
-        var firstByte:String;
-        var inner:String;
-        var finalByte:String;
-        firstByte = asHex ? StringTools.hex(messageType) : Std.string(messageType);
-        finalByte = asHex ? StringTools.hex(byte3) : Std.string(byte3);
-        if(messageType == SysEx) {
-            inner = [for(i in 1...this.length - 1) asHex ? StringTools.hex(this.get(i)) : Std.string(this.get(i))].join(" ");
-        }
-        else{
-            inner = asHex ? StringTools.hex(byte2) : Std.string(byte2);
-        }
-        return '[MidiMessage: messageType($firstByte) / ($inner) / byte3($finalByte)]';
+    public function toString(asHex:Bool = false)
+    {
+        var message = [for(i in 0...this.length) asHex ? StringTools.hex(this.get(i)) : Std.string(this.get(i))].join(" ");
+        return '[MidiMessage: $message]';
     }
 }
