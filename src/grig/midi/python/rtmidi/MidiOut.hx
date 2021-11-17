@@ -105,11 +105,7 @@ class MidiOut implements MidiSender
     public function sendMessage(message:MidiMessage):Void
     {
         try {
-            var messageArray = new Array<Int>();
-            messageArray.push(message.byte1);
-            messageArray.push(message.byte2);
-            messageArray.push(message.byte3);
-            midiOut.send_message(messageArray);
+            midiOut.send_message(message.toArray());
         }
         catch (exception:BaseException) {
             throw new Error(InternalError, 'Failure on send_message');

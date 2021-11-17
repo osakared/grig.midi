@@ -92,7 +92,7 @@ class MidiOut implements MidiSender
     public function sendMessage(midiMessage:MidiMessage)
     {
         try {
-            midiOutput.send([midiMessage.byte1, midiMessage.byte2, midiMessage.byte3]);
+            midiOutput.send(midiMessage.toArray());
         }
         catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);

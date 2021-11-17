@@ -14,6 +14,7 @@ abstract MidiMessage(Bytes)
     public var byte1(get, never):Int;
     public var byte2(get, never):Int;
     public var byte3(get, never):Int;
+    public var last(get, never):Int;
     public var pitch(get, never):Pitch;
 
     public function new(bytes:Bytes)
@@ -153,9 +154,23 @@ abstract MidiMessage(Bytes)
         return this.get(2);
     }
 
+    private function get_last():Int
+    {
+        return this.get(this.length - 1);
+    }
+
     private function get_pitch():Pitch
     {
         return Pitch.fromMidiNote(this.get(1));
+    }
+
+    public function toArray():Array<Int>
+    {
+        var messageArray = new Array<Int>();
+        for (i in 0...this.length) {
+            messageArray.push(this.get(i));
+        }
+        return messageArray;
     }
 
     public function toString(asHex:Bool = false)

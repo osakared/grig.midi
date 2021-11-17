@@ -106,13 +106,9 @@ class MidiOut implements grig.midi.MidiSender
     public function sendMessage(message:MidiMessage):Void
     {
         try {
-            var messageArray = new Array<Int>();
-            messageArray.push(message.byte1);
-            messageArray.push(message.byte2);
-            messageArray.push(message.byte3);
-            output.sendMessage(messageArray);
+            output.sendMessage(message.toArray());
         }
-        catch(error:js.lib.Error) {
+        catch (error:js.lib.Error) {
             throw new Error(InternalError, error.message);
         }
     }
