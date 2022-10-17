@@ -4,20 +4,19 @@ import haxe.io.Bytes;
 
 using grig.midi.file.VariableLengthWriter;
 
-class SequencerSpecificEvent implements MidiFileEvent
+class SequencerSpecificEvent extends MidiFileEvent
 {
     public var bytes(default, null):Bytes;
-    public var absoluteTime(default, null):Int; // In ticks
     public var id(default, null):Int;
 
-    public function new(_bytes:Bytes, _id:Int, _absoluteTime:Int)
+    public function new(bytes:Bytes, id:Int, absoluteTime:Int)
     {
-        bytes = _bytes;
-        id = _id;
-        absoluteTime = _absoluteTime;
+        super(SequencerSpecific(this), absoluteTime);
+        this.bytes = bytes;
+        this.id = id;
     }
 
-    public static function fromInput(input:haxe.io.Input, length:Int, absoluteTime:Int)
+    public static function fromInput(input:haxe.io.Input, length:Int, absoluteTime:Int):SequencerSpecificEvent
     {
         var id = input.readByte() << 0x10;
         length -= 1;
@@ -30,7 +29,7 @@ class SequencerSpecificEvent implements MidiFileEvent
         return new SequencerSpecificEvent(bytes, id, absoluteTime);
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -43,6 +42,6 @@ class SequencerSpecificEvent implements MidiFileEvent
         return written;
     }
     
-    public function toString()
+    override public function toString()
         return '[SequencerSpecificEvent: absoluteTime($absoluteTime) / id($id) / bytes($bytes)]';
 }

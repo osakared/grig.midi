@@ -1,17 +1,16 @@
 package grig.midi.file.event;
 
-class SequenceEvent implements MidiFileEvent
+class SequenceEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var sequenceNumber(default, null):Int;
 
-    public function new(_sequenceNumber:Int, _absoluteTime:Int)
+    public function new(sequenceNumber:Int, absoluteTime:Int)
     {
-        sequenceNumber = _sequenceNumber;
-        absoluteTime = _absoluteTime;
+        super(Sequence(this), absoluteTime);
+        this.sequenceNumber = sequenceNumber;
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -22,6 +21,6 @@ class SequenceEvent implements MidiFileEvent
         return 5;
     }
     
-    public function toString()
+    override public function toString()
         return '[SequenceEvent: absoluteTime($absoluteTime) / sequenceNumber($sequenceNumber)]';
 }

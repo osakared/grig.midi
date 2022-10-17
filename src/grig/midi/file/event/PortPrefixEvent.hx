@@ -1,17 +1,16 @@
 package grig.midi.file.event;
 
-class PortPrefixEvent implements MidiFileEvent
+class PortPrefixEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var portPrefix(default, null):Int;
 
-    public function new(_portPrefix:Int, _absoluteTime:Int)
+    public function new(portPrefix:Int, absoluteTime:Int)
     {
-        portPrefix = _portPrefix;
-        absoluteTime = _absoluteTime;
+        super(PortPrefix(this), absoluteTime);
+        this.portPrefix = portPrefix;
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -20,5 +19,10 @@ class PortPrefixEvent implements MidiFileEvent
             output.writeByte(portPrefix);
         }
         return 4;
+    }
+
+    override public function toString()
+    {
+        return '[PortPrefixEvent: absoluteTime($absoluteTime) / portPrefix($portPrefix)]';
     }
 }

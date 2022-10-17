@@ -1,16 +1,15 @@
 package grig.midi.file.event;
 
-class KeySignatureEvent implements MidiFileEvent
+class KeySignatureEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var numSharps(default, null):Int;
     public var isMinor(default, null):Bool;
 
-    public function new(_numSharps:Int, _isMinor:Bool, _absoluteTime:Int)
+    public function new(numSharps:Int, isMinor:Bool, absoluteTime:Int)
     {
-        numSharps = _numSharps;
-        isMinor = _isMinor;
-        absoluteTime = _absoluteTime;
+        super(KeySignature(this), absoluteTime);
+        this.numSharps = numSharps;
+        this.isMinor = isMinor;
     }
 
     public static function fromInput(input:haxe.io.Input, absoluteTime:Int)
@@ -20,7 +19,7 @@ class KeySignatureEvent implements MidiFileEvent
         return new KeySignatureEvent(numSharps, isMinor, absoluteTime);
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -32,6 +31,6 @@ class KeySignatureEvent implements MidiFileEvent
         return 5;
     }
     
-    public function toString()
+    override public function toString()
         return '[KeySignatureEvent: absoluteTime($absoluteTime) / numSharps($numSharps) / isMinor($isMinor)]';
 }

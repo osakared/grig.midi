@@ -14,11 +14,10 @@ enum TextEventType {
     InstrumentName;
 }
 
-class TextEvent implements MidiFileEvent
+class TextEvent extends MidiFileEvent
 {
     public var bytes(default, null):Bytes;
-    public var absoluteTime(default, null):Int; // In ticks
-    public var type(default, null):TextEventType;
+    public var textEventType(default, null):TextEventType;
 
     public static function typeFromByte(byte:Int):TextEventType
     {
@@ -49,18 +48,18 @@ class TextEvent implements MidiFileEvent
         return 0;
     }
 
-    public function new(_text:String, _absoluteTime:Int, _type:Int)
+    public function new(text:String, absoluteTime:Int, type:Int)
     {
-        bytes = Bytes.ofString(_text, UTF8);
-        absoluteTime = _absoluteTime;
-        type = typeFromByte(_type);
+        super(Text(this), absoluteTime);
+        this.bytes = Bytes.ofString(text, UTF8);
+        this.textEventType = typeFromByte(type);
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
-            output.writeByte(byteFromType(type));
+            output.writeByte(byteFromType(textEventType));
         }
         var written = output.writeVariableBytes(bytes.length, null, dry) + bytes.length + 2;
         if (!dry) {
@@ -69,6 +68,6 @@ class TextEvent implements MidiFileEvent
         return written;
     }
     
-    public function toString()
+    override public function toString()
         return '[TextEvent: absoluteTime($absoluteTime) / type($type) / text(${bytes.getString(0, bytes.length)})]';
 }
