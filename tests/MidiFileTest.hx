@@ -27,18 +27,19 @@ class MidiFileTest
     public function testFirstBassNote()
     {
         for (midiEvent in midiFile.tracks[2].midiEvents) {
-            try {
-                var messageEvent = cast(midiEvent, grig.midi.file.event.MidiMessageEvent);
-                if (messageEvent.midiMessage.messageType == NoteOn) {
-                    var pitch = messageEvent.midiMessage.pitch;
-                    asserts.assert(pitch.note == grig.pitch.PitchClass.D);
-                    asserts.assert(pitch.octave == 5);
-                    return asserts.done();
+            switch (midiEvent.type) {
+                case MidiMessage(messageEvent): {
+                    if (messageEvent.midiMessage.messageType == NoteOn) {
+                        var pitch = messageEvent.midiMessage.pitch;
+                        asserts.assert(pitch.note == grig.pitch.PitchClass.D);
+                        asserts.assert(pitch.octave == 5);
+                        return asserts.done();
+                    }
                 }
+                default:
+                    continue;
             }
-            catch(e:Dynamic) {}
         }
-        asserts.assert(false);
         return asserts.done();
     }
 
@@ -57,13 +58,14 @@ class MidiFileTest
         var newInput = new BytesInput(bytes);
         var newMidiFile = MidiFile.fromInput(newInput);
         for (midiEvent in newMidiFile.tracks[2].midiEvents) {
-            try {
-                var messageEvent = cast(midiEvent, grig.midi.file.event.MidiMessageEvent);
-                if (messageEvent.midiMessage.messageType == NoteOn) {
-                    return assert(messageEvent.midiMessage.byte2 == 0x3E);
+            switch (midiEvent.type) {
+                case MidiMessage(messageEvent): {
+                    if (messageEvent.midiMessage.messageType == NoteOn) {
+                        return assert(messageEvent.midiMessage.byte2 == 0x3E);
+                    }
                 }
-            }
-            catch(e:Dynamic) {}
+                default: continue;
+            }            
         }
         return assert(false);
     }
@@ -100,9 +102,14 @@ class MidiFileTest
         var matchingEvents = midiFile.tracks[0].midiEvents.filter(function(e){ return Std.isOfType(e, PortPrefixEvent);});
         var hasMatchingEventType = matchingEvents.length > 0;
         var hasCorrectEventValue = false;
-        if(hasMatchingEventType){
-            var portPrefixEvent:PortPrefixEvent = cast matchingEvents[0];
-            hasCorrectEventValue = portPrefixEvent.portPrefix == 127;
+        if (hasMatchingEventType) {
+            hasCorrectEventValue = switch (matchingEvents[0].type) {
+                case PortPrefix(portPrefixEvent): {
+                    portPrefixEvent.portPrefix == 127;
+                }
+                default: false;
+            }
+            
         }
         return assert(hasMatchingEventType && hasCorrectEventValue);
     }
@@ -115,9 +122,11 @@ class MidiFileTest
         var matchingEvents = midiFile.tracks[0].midiEvents.filter(function(e){ return Std.isOfType(e, ChannelPrefixEvent);});
         var hasMatchingEventType = matchingEvents.length > 0;
         var hasCorrectEventValue = false;
-        if(hasMatchingEventType){
-            var portPrefixEvent:ChannelPrefixEvent = cast matchingEvents[0];
-            hasCorrectEventValue = portPrefixEvent.channelPrefix == 15;
+        if (hasMatchingEventType) {
+            hasCorrectEventValue = switch (matchingEvents[0].type) {
+                case ChannelPrefix(portPrefixEvent): portPrefixEvent.channelPrefix == 15;
+                default: false;
+            }
         }
         return assert(hasMatchingEventType && hasCorrectEventValue);
     }

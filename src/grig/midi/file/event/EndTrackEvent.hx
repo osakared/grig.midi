@@ -1,15 +1,13 @@
 package grig.midi.file.event;
 
-class EndTrackEvent implements MidiFileEvent
+class EndTrackEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
-
-    public function new(_absoluteTime:Int)
+    public function new(absoluteTime:Int)
     {
-        absoluteTime = _absoluteTime;
+        super(EndTrack(this), absoluteTime);
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -19,6 +17,6 @@ class EndTrackEvent implements MidiFileEvent
         return 3;
     }
     
-    public function toString()
+    override public function toString()
         return '[EndTrackEvent: absoluteTime($absoluteTime)]';
 }

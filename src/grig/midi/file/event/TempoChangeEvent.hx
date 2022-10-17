@@ -1,8 +1,7 @@
 package grig.midi.file.event;
 
-class TempoChangeEvent implements MidiFileEvent
+class TempoChangeEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var microsecondsPerQuarterNote(default, null):Int;
     public var tempo(get, null):Int;
 
@@ -11,13 +10,13 @@ class TempoChangeEvent implements MidiFileEvent
         return Std.int(1000000 / microsecondsPerQuarterNote) * 60;
     }
 
-    public function new(_microsecondsPerQuarterNote:Int, _absoluteTime:Int)
+    public function new(microsecondsPerQuarterNote:Int, absoluteTime:Int)
     {
-        microsecondsPerQuarterNote = _microsecondsPerQuarterNote;
-        absoluteTime = _absoluteTime;
+        super(TempoChange(this), absoluteTime);
+        this.microsecondsPerQuarterNote = microsecondsPerQuarterNote;
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -28,6 +27,6 @@ class TempoChangeEvent implements MidiFileEvent
         return 6;
     }
     
-    public function toString()
+    override public function toString()
         return '[TempoChangeEvent: absoluteTime($absoluteTime) / msPQN($microsecondsPerQuarterNote) / tempo($tempo)]';
 }

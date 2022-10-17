@@ -1,23 +1,21 @@
 package grig.midi.file.event;
 
-class MidiMessageEvent implements MidiFileEvent
+class MidiMessageEvent extends MidiFileEvent
 {
     public var midiMessage(default, null):MidiMessage;
-    public var absoluteTime(default, null):Int; // In ticks
 
-    public function new(_midiMessage:MidiMessage, _absoluteTime:Int)
+    public function new(midiMessage:MidiMessage, absoluteTime:Int)
     {
-        midiMessage = _midiMessage;
-        absoluteTime = _absoluteTime;
+        super(MidiMessage(this), absoluteTime);
+        this.midiMessage = midiMessage;
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
-        if (dry) return midiMessage.size;
-        output.write(midiMessage.getBytes());
+        if (!dry) output.write(midiMessage.getBytes());
         return midiMessage.size;
     }
     
-    public function toString()
+    override public function toString()
         return '[MidiMessageEvent: absoluteTime($absoluteTime) / midiMessage($midiMessage)]';
 }

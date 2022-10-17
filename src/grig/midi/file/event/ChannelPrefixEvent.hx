@@ -1,17 +1,16 @@
 package grig.midi.file.event;
 
-class ChannelPrefixEvent implements MidiFileEvent
+class ChannelPrefixEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var channelPrefix(default, null):Int;
 
-    public function new(_channelPrefix:Int, _absoluteTime:Int)
+    public function new(channelPrefix:Int, absoluteTime:Int)
     {
-        channelPrefix = _channelPrefix;
-        absoluteTime = _absoluteTime;
+        super(ChannelPrefix(this), absoluteTime);
+        this.channelPrefix = channelPrefix;
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -22,6 +21,6 @@ class ChannelPrefixEvent implements MidiFileEvent
         return 5;
     }
     
-    public function toString()
+    override public function toString()
         return '[ChannelPrefixEvent: absoluteTime($absoluteTime) / channelPrefix($channelPrefix)]';
 }

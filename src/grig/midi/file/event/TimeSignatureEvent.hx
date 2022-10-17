@@ -1,8 +1,7 @@
 package grig.midi.file.event;
 
-class TimeSignatureEvent implements MidiFileEvent
+class TimeSignatureEvent extends MidiFileEvent
 {
-    public var absoluteTime(default, null):Int; // In ticks
     public var numerator(default, null):Int;
     public var denominatorExponent(default, null):Int;
     public var denominator(get, never):Int;
@@ -14,13 +13,13 @@ class TimeSignatureEvent implements MidiFileEvent
         return Math.ceil(Math.pow(2, denominatorExponent));
     }
 
-    public function new(_numerator:Int, _denominatorExponent:Int, _midiClocksPerClick:Int, _thirtySecondNotesPerTick:Int, _absoluteTime:Int)
+    public function new(numerator:Int, denominatorExponent:Int, midiClocksPerClick:Int, thirtySecondNotesPerTick:Int, absoluteTime:Int)
     {
-        midiClocksPerClick = _midiClocksPerClick;
-        thirtySecondNotesPerTick = _thirtySecondNotesPerTick;
-        numerator = _numerator;
-        denominatorExponent = _denominatorExponent;
-        absoluteTime = _absoluteTime;
+        super(TimeSignature(this), absoluteTime);
+        this.midiClocksPerClick = midiClocksPerClick;
+        this.thirtySecondNotesPerTick = thirtySecondNotesPerTick;
+        this.numerator = numerator;
+        this.denominatorExponent = denominatorExponent;
     }
 
     public static function fromInput(input:haxe.io.Input, absoluteTime:Int)
@@ -32,7 +31,7 @@ class TimeSignatureEvent implements MidiFileEvent
         return new TimeSignatureEvent(numerator, denominator, midiClocksPerClick, thirtySecondNotesPerTick, absoluteTime);
     }
 
-    public function write(output:haxe.io.Output, dry:Bool = false):Int
+    override public function write(output:haxe.io.Output, dry:Bool = false):Int
     {
         if (!dry) {
             output.writeByte(0xFF);
@@ -46,6 +45,6 @@ class TimeSignatureEvent implements MidiFileEvent
         return 7;
     }
     
-    public function toString()
+    override public function toString()
         return '[TimeSignatureEvent: absoluteTime($absoluteTime) / numerator($numerator) / denominatorExponent($denominatorExponent) / denominator($denominator) / midiClocksPerClick($midiClocksPerClick) / thirtySecondNotesPerTick($thirtySecondNotesPerTick)]';
 }
