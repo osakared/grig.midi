@@ -69,5 +69,5 @@ class TextEvent extends MidiFileEvent
     }
     
     override public function toString()
-        return '[TextEvent: absoluteTime($absoluteTime) / type($type) / text(${bytes.getString(0, bytes.length)})]';
+        return '[TextEvent: absoluteTime($absoluteTime) / type($textEventType) / text(${bytes.getString(0, bytes.length)})]';
 }
