@@ -12,8 +12,8 @@
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Added a type enum to MidiFileEvent",
-  "version": "0.0.9",
+  "releasenote": "Minor debug statement fix",
+  "version": "0.0.10",
   "dependencies": {
     "grig.pitch": "0.0.2",
     "tink_core": "2.0.2",
