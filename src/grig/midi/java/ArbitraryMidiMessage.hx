@@ -1,4 +1,4 @@
-package grig.midi.java;
+package grig.midi.java; #if java
 
 class ArbitraryMidiMessage extends java.javax.sound.midi.MidiMessage
 {
@@ -7,3 +7,5 @@ class ArbitraryMidiMessage extends java.javax.sound.midi.MidiMessage
         super(midiMessage.getData());
     }
 }
+
+#end
