@@ -29,8 +29,8 @@ class Build
         coreFoundation.set('name', '-framework');
         coreFoundation.set('value', 'CoreFoundation');
 
-        var wlFlags = Xml.createElement('flag');
-        wlFlags.set('value', '-Wl,-F/Library/Frameworks');
+        var wlFlags = Xml.createElement('lib');
+        wlFlags.set('name', '-Wl,-F/Library/Frameworks');
 
         for (flag in [defineXml]) {
             flag.set('if', 'macos || ios');
