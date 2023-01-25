@@ -47,4 +47,15 @@ class MidiMessageTest
         return assert(controlChangeMessage.toString() == '[MidiMessage: 177 64 127]');
     }
 
+    public function testSetParts()
+    {
+        var noteOnMessage = MidiMessage.ofMessageType(MessageType.NoteOn, [70, 64], 1);
+        noteOnMessage.channel = 3;
+        asserts.assert(noteOnMessage.messageType == MessageType.NoteOn);
+        asserts.assert(noteOnMessage.pitch.toMidiNote() == 70);
+        asserts.assert(noteOnMessage.velocity == 64);
+        asserts.assert(noteOnMessage.channel == 3);
+        return asserts.done();
+    }
+
 }

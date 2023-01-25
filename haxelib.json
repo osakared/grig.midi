@@ -12,8 +12,8 @@
   "contributors": [
     "thomasjwebb"
   ],
-  "releasenote": "Minor debug statement fix",
-  "version": "0.0.10",
+  "releasenote": "Increased ease of modifying midi messages",
+  "version": "0.0.11",
   "dependencies": {
     "grig.pitch": "0.0.2",
     "tink_core": "2.0.2",
