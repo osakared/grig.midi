@@ -10,25 +10,23 @@ abstract MidiMessage(Bytes)
     public var messageType(get, never):MessageType;
     public var controlChangeType(get, never):ControlChangeType;
     public var size(get, never):Int;
-    public var channel(get, never):Int;
-    public var byte1(get, never):Int;
-    public var byte2(get, never):Int;
-    public var byte3(get, never):Int;
-    public var last(get, never):Int;
-    public var pitch(get, never):Pitch;
+    public var channel(get, set):Int;
+    public var byte1(get, set):Int;
+    public var byte2(get, set):Int;
+    public var byte3(get, set):Int;
+    public var velocity(get, set):Int;
+    public var last(get, set):Int;
+    public var pitch(get, set):Pitch;
 
-    public function new(bytes:Bytes)
-    {
+    public function new(bytes:Bytes) {
         this = bytes;
     }
 
-    public static function ofBytesData(bytes:haxe.io.BytesData):MidiMessage
-    {
+    public static function ofBytesData(bytes:haxe.io.BytesData):MidiMessage {
         return new MidiMessage(Bytes.ofData(bytes));
     }
 
-    public function getBytes():Bytes
-    {
+    public function getBytes():Bytes {
         return this;
     }
 
@@ -37,8 +35,7 @@ abstract MidiMessage(Bytes)
      * @param array 
      * @return MidiMessage
      */
-    public static function ofArray(array:Array<Int>):MidiMessage
-    {
+    public static function ofArray(array:Array<Int>):MidiMessage {
         var bytes = Bytes.alloc(array.length);
         for (i in 0...array.length) {
             bytes.set(i, array[i]);
@@ -46,13 +43,16 @@ abstract MidiMessage(Bytes)
         return new MidiMessage(bytes);
     }
 
-    private function get_channel():Int
-    {
+    private function get_channel():Int {
         return this.get(0) & 0xf;
     }
 
-    public static function ofMessageType(type:MessageType, values:Array<Int>, channel:Int = 0):MidiMessage
-    {
+    private function set_channel(channel:Int):Int {
+        this.set(0, this.get(0) | channel);
+        return channel;
+    }
+
+    public static function ofMessageType(type:MessageType, values:Array<Int>, channel:Int = 0):MidiMessage {
         if (type != SysEx) {
             var messageSize = sizeForMessageType(type);
             var numValuesRequired = messageSize - 1;
@@ -77,14 +77,12 @@ abstract MidiMessage(Bytes)
         }
         return ofArray(bytes);
     }
-        
-    private static function valueIsWithinRange(value:Int):Bool
-    {
+
+    private static function valueIsWithinRange(value:Int):Bool {
         return value >= 0 && value <= 127;
     }
 
-    private static function messageByteForType(type:MessageType, channel:Int = 0):Int
-    {
+    private static function messageByteForType(type:MessageType, channel:Int = 0):Int {
         var byte:Int = type;
 
         if (!type.isSysCommon()) {
@@ -94,19 +92,16 @@ abstract MidiMessage(Bytes)
         return byte;
     }
 
-    private function get_messageType():MessageType
-    {
+    private function get_messageType():MessageType {
         return MessageType.ofByte(this.get(0));
     }
 
-    private function get_controlChangeType():ControlChangeType
-    {
+    private function get_controlChangeType():ControlChangeType {
         if (MessageType.ofByte(this.get(0)) != MessageType.ControlChange) return NonControl;
         return ControlChangeType.ofByte(this.get(1));
     }
 
-    public static function sizeForMessageType(messageType:MessageType):Int
-    {
+    public static function sizeForMessageType(messageType:MessageType):Int {
         return switch(messageType) {
             case NoteOn: 3;
             case NoteOff: 3;
@@ -134,38 +129,65 @@ abstract MidiMessage(Bytes)
         }
     }
 
-    private function get_size():Int
-    {
+    private inline function get_size():Int {
         return this.length;
     }
 
-    private function get_byte1():Int
-    {
+    private inline function get_byte1():Int {
         return this.get(0);
     }
 
-    private function get_byte2():Int
-    {
+    private inline function set_byte1(val:Int):Int {
+        this.set(0, val);
+        return val;
+    }
+
+    private inline function get_byte2():Int {
         return this.get(1);
     }
 
-    private function get_byte3():Int
-    {
+    private inline function set_byte2(val:Int):Int {
+        this.set(1, val);
+        return val;
+    }
+
+    private inline function get_byte3():Int {
         return this.get(2);
     }
 
-    private function get_last():Int
-    {
+    private inline function set_byte3(val:Int):Int {
+        this.set(2, val);
+        return val;
+    }
+
+    private inline function get_velocity():Int {
+        return this.get(2);
+    }
+
+    private inline function set_velocity(val:Int):Int {
+        this.set(2, val);
+        return val;
+    }
+
+    private inline function get_last():Int {
         return this.get(this.length - 1);
     }
 
-    private function get_pitch():Pitch
-    {
+    private inline function set_last(val:Int):Int {
+        this.set(this.length - 1, val);
+        return val;
+    }
+
+    private inline function get_pitch():Pitch {
         return Pitch.fromMidiNote(this.get(1));
     }
 
-    public function toArray():Array<Int>
-    {
+    private inline function set_pitch(pitch:Pitch):Pitch {
+        this.set(1, pitch.toMidiNote());
+        return pitch;
+    }
+
+    public function toArray():Array<Int> {
         var messageArray = new Array<Int>();
         for (i in 0...this.length) {
             messageArray.push(this.get(i));
@@ -173,8 +195,7 @@ abstract MidiMessage(Bytes)
         return messageArray;
     }
 
-    public function toString(asHex:Bool = false)
-    {
+    public function toString(asHex:Bool = false) {
         var message = [for(i in 0...this.length) asHex ? StringTools.hex(this.get(i)) : Std.string(this.get(i))].join(" ");
         return '[MidiMessage: $message]';
     }
